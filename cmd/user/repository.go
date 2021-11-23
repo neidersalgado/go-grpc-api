@@ -1,10 +1,10 @@
-package repository
+package user
 
 import (
 	"database/sql"
 	"fmt"
 
-	"github.com/neidersalgado/go-camp-grpc/cmd/gRPC_server/pb"
+	"github.com/neidersalgado/go-camp-grpc/cmd/user/pb"
 )
 
 type MySQLUserRepository struct {

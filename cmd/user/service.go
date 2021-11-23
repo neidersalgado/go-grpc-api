@@ -1,10 +1,10 @@
-package userservice
+package user
 
 import (
 	"context"
 	"fmt"
 
-	"github.com/neidersalgado/go-camp-grpc/cmd/gRPC_server/pb"
+	"github.com/neidersalgado/go-camp-grpc/cmd/user/pb"
 )
 
 type Repository interface {

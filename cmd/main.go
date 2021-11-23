@@ -10,9 +10,8 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"google.golang.org/grpc"
 
-	"github.com/neidersalgado/go-camp-grpc/cmd/gRPC_server/pb"
-	"github.com/neidersalgado/go-camp-grpc/cmd/gRPC_server/repository"
-	service "github.com/neidersalgado/go-camp-grpc/cmd/gRPC_server/service"
+	"github.com/neidersalgado/go-camp-grpc/cmd/user"
+	"github.com/neidersalgado/go-camp-grpc/cmd/user/pb"
 )
 
 func main() {
@@ -32,10 +31,10 @@ func main() {
 	db := dbConn()
 	fmt.Println("DB Connect")
 	defer db.Close()
-	userRepo := repository.NewMySQLUserRepository(db)
+	userRepo := user.NewMySQLUserRepository(db)
 	server := grpc.NewServer()
 	fmt.Println("Config Server")
-	pb.RegisterUsersServer(server, service.NewUserService(userRepo))
+	pb.RegisterUsersServer(server, user.NewUserService(userRepo))
 	fmt.Println("Serving Service")
 	if err := server.Serve(ls); err != nil {
 		fmt.Println(fmt.Sprintln("Error While runing server: %v", err))
@@ -43,6 +42,7 @@ func main() {
 	}
 
 	fmt.Println("Server is running!")
+
 }
 
 func dbConn() (db *sql.DB) {
@@ -60,27 +60,3 @@ func dbConn() (db *sql.DB) {
 type config struct {
 	Port int `env:"GRPCSERVICE_PORT" envDefault:"9000"`
 }
-
-/*
-
-user := pb.UserRequest{
-	Id:                    "134",
-	Name:                  "Juan Bedoya",
-	PwdHash:               "fgdfgerFGDrWErwerWErWE435RFW",
-	Age:                   23,
-	AdditionalInformation: "none",
-}
-
-//err := userRepo.Create(user)
-//err := userRepo.Delete(user.Id)
-userResponse, err := userRepo.Get(user.Id)
-// if there is an error inserting, handle it
-if err != nil {
-	fmt.Println(fmt.Errorf("error in save user", err))
-}
-fmt.Println(userResponse.String())
-// be careful deferring Queries if you are using transactions
-defer db.Close()
-
-
-*/
