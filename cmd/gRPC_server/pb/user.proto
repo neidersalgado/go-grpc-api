@@ -1,0 +1,61 @@
+syntax = "proto3";
+package user;
+option go_package = "pb";
+
+
+message UserRequest{
+    string id =1;
+    string name =2;
+    string pwd_hash = 3;
+    int32 age = 4;
+    string additional_information = 5;
+    repeated UserResponse parents =6;
+}
+
+message UserResponse{
+    string id =1;
+    string name =2;
+    string pwd_hash = 3;
+    int32 age = 4;
+    string additional_information = 5;
+    repeated UserResponse parents =6;
+}
+
+message UserColletionResponse{
+    repeated UserResponse users = 1;
+}
+
+message void{}
+
+message Response{
+    enum CodeResult{
+        UNKNOW = 0;
+        OK=1;
+        FAILED = 2;
+        INVALIDINPUT = 3;
+    }
+    enum RequestType{
+        CREATE = 0;
+        UPDATE = 1;
+        DELETE = 2;
+    }
+
+    CodeResult code = 1;
+}
+
+message AuthRequest{
+    string name =1;
+    string hash = 2;
+}
+
+message UserID {
+    string ID = 1;
+}
+service Users {
+    rpc Authenticate(AuthRequest) returns(Response) {}
+    rpc Create(UserRequest) returns(Response) {}
+    rpc Get(UserID) returns(UserResponse) {}
+    rpc Update(UserRequest) returns(Response) {}
+    rpc Delete(UserID) returns(Response) {}
+    rpc GetAll(void) returns (UserColletionResponse){}
+}
