@@ -9,9 +9,9 @@ import (
 
 type Repository interface {
 	Create(user pb.UserRequest) error
-	Get(userID string) (pb.UserResponse, error)
+	Get(userID int32) (pb.UserResponse, error)
 	Update(user pb.UserRequest) error
-	Delete(userID string) error
+	Delete(userID int32) error
 	GetAll() (pb.UserColletionResponse, error)
 }
 

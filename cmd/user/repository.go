@@ -15,7 +15,7 @@ type MySQLUserRepository struct {
 const (
 	querySaveUser   = `INSERT INTO user(name,pwdhash,age,aditional_information,email) values (?,?,?,?,?);`
 	queryDeleteUser = `DELETE FROM user WHERE Id = ?`
-	queryGetUser    = `SELECT * FROM user WHERE Id = ?`
+	queryGetUser    = `SELECT Id, name, pwdhash, age, aditional_information FROM user WHERE Id = ?`
 	queryGetUsers   = `SELECT * FROM user`
 )
 
@@ -45,14 +45,15 @@ func (r *MySQLUserRepository) Create(user pb.UserRequest) error {
 	return nil
 }
 
-func (r *MySQLUserRepository) Get(userID string) (pb.UserResponse, error) {
+func (r *MySQLUserRepository) Get(userID int32) (pb.UserResponse, error) {
 	var userResponse pb.UserResponse
 	errExec := r.ConnectionClient.QueryRow(queryGetUser, userID).Scan(
 		&userResponse.UserId,
+		&userResponse.Name,
 		&userResponse.PwdHash,
 		&userResponse.Age,
 		&userResponse.AdditionalInformation,
-		&userResponse.Name)
+	)
 
 	if errExec != nil {
 		return pb.UserResponse{}, fmt.Errorf(
@@ -67,7 +68,7 @@ func (r *MySQLUserRepository) Update(pb.UserRequest) error {
 	return nil
 }
 
-func (r *MySQLUserRepository) Delete(userID string) error {
+func (r *MySQLUserRepository) Delete(userID int32) error {
 	stmtSaveUser, err := r.ConnectionClient.Prepare(queryDeleteUser)
 
 	if err != nil {

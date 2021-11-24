@@ -51,8 +51,9 @@ message AuthRequest{
 }
 
 message UserID {
-    string ID = 1;
+    int32 ID = 1;
 }
+
 service Users {
     rpc Authenticate(AuthRequest) returns(Response) {}
     rpc Create(UserRequest) returns(Response) {}
