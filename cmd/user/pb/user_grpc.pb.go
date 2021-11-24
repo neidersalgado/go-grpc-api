@@ -20,9 +20,9 @@ const _ = grpc.SupportPackageIsVersion7
 type UsersClient interface {
 	Authenticate(ctx context.Context, in *AuthRequest, opts ...grpc.CallOption) (*Response, error)
 	Create(ctx context.Context, in *UserRequest, opts ...grpc.CallOption) (*Response, error)
-	Get(ctx context.Context, in *UserID, opts ...grpc.CallOption) (*UserResponse, error)
+	Get(ctx context.Context, in *UserIDRequest, opts ...grpc.CallOption) (*UserResponse, error)
 	Update(ctx context.Context, in *UserRequest, opts ...grpc.CallOption) (*Response, error)
-	Delete(ctx context.Context, in *UserID, opts ...grpc.CallOption) (*Response, error)
+	Delete(ctx context.Context, in *UserIDRequest, opts ...grpc.CallOption) (*Response, error)
 	GetAll(ctx context.Context, in *Void, opts ...grpc.CallOption) (*UserColletionResponse, error)
 }
 
@@ -52,7 +52,7 @@ func (c *usersClient) Create(ctx context.Context, in *UserRequest, opts ...grpc.
 	return out, nil
 }
 
-func (c *usersClient) Get(ctx context.Context, in *UserID, opts ...grpc.CallOption) (*UserResponse, error) {
+func (c *usersClient) Get(ctx context.Context, in *UserIDRequest, opts ...grpc.CallOption) (*UserResponse, error) {
 	out := new(UserResponse)
 	err := c.cc.Invoke(ctx, "/user.Users/Get", in, out, opts...)
 	if err != nil {
@@ -70,7 +70,7 @@ func (c *usersClient) Update(ctx context.Context, in *UserRequest, opts ...grpc.
 	return out, nil
 }
 
-func (c *usersClient) Delete(ctx context.Context, in *UserID, opts ...grpc.CallOption) (*Response, error) {
+func (c *usersClient) Delete(ctx context.Context, in *UserIDRequest, opts ...grpc.CallOption) (*Response, error) {
 	out := new(Response)
 	err := c.cc.Invoke(ctx, "/user.Users/Delete", in, out, opts...)
 	if err != nil {
@@ -94,9 +94,9 @@ func (c *usersClient) GetAll(ctx context.Context, in *Void, opts ...grpc.CallOpt
 type UsersServer interface {
 	Authenticate(context.Context, *AuthRequest) (*Response, error)
 	Create(context.Context, *UserRequest) (*Response, error)
-	Get(context.Context, *UserID) (*UserResponse, error)
+	Get(context.Context, *UserIDRequest) (*UserResponse, error)
 	Update(context.Context, *UserRequest) (*Response, error)
-	Delete(context.Context, *UserID) (*Response, error)
+	Delete(context.Context, *UserIDRequest) (*Response, error)
 	GetAll(context.Context, *Void) (*UserColletionResponse, error)
 	mustEmbedUnimplementedUsersServer()
 }
@@ -111,13 +111,13 @@ func (UnimplementedUsersServer) Authenticate(context.Context, *AuthRequest) (*Re
 func (UnimplementedUsersServer) Create(context.Context, *UserRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
-func (UnimplementedUsersServer) Get(context.Context, *UserID) (*UserResponse, error) {
+func (UnimplementedUsersServer) Get(context.Context, *UserIDRequest) (*UserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
 }
 func (UnimplementedUsersServer) Update(context.Context, *UserRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
 }
-func (UnimplementedUsersServer) Delete(context.Context, *UserID) (*Response, error) {
+func (UnimplementedUsersServer) Delete(context.Context, *UserIDRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
 func (UnimplementedUsersServer) GetAll(context.Context, *Void) (*UserColletionResponse, error) {
@@ -173,7 +173,7 @@ func _Users_Create_Handler(srv interface{}, ctx context.Context, dec func(interf
 }
 
 func _Users_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UserID)
+	in := new(UserIDRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -185,7 +185,7 @@ func _Users_Get_Handler(srv interface{}, ctx context.Context, dec func(interface
 		FullMethod: "/user.Users/Get",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UsersServer).Get(ctx, req.(*UserID))
+		return srv.(UsersServer).Get(ctx, req.(*UserIDRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -209,7 +209,7 @@ func _Users_Update_Handler(srv interface{}, ctx context.Context, dec func(interf
 }
 
 func _Users_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UserID)
+	in := new(UserIDRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -221,7 +221,7 @@ func _Users_Delete_Handler(srv interface{}, ctx context.Context, dec func(interf
 		FullMethod: "/user.Users/Delete",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UsersServer).Delete(ctx, req.(*UserID))
+		return srv.(UsersServer).Delete(ctx, req.(*UserIDRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

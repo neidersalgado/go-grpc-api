@@ -50,15 +50,15 @@ message AuthRequest{
     string hash = 2;
 }
 
-message UserID {
-    int32 ID = 1;
+message UserIDRequest {
+    string email = 1;
 }
 
 service Users {
     rpc Authenticate(AuthRequest) returns(Response) {}
     rpc Create(UserRequest) returns(Response) {}
-    rpc Get(UserID) returns(UserResponse) {}
+    rpc Get(UserIDRequest) returns(UserResponse) {}
     rpc Update(UserRequest) returns(Response) {}
-    rpc Delete(UserID) returns(Response) {}
+    rpc Delete(UserIDRequest) returns(Response) {}
     rpc GetAll(void) returns (UserColletionResponse){}
 }

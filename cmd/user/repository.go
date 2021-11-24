@@ -45,9 +45,9 @@ func (r *MySQLUserRepository) Create(user pb.UserRequest) error {
 	return nil
 }
 
-func (r *MySQLUserRepository) Get(userID int32) (pb.UserResponse, error) {
+func (r *MySQLUserRepository) Get(email string) (pb.UserResponse, error) {
 	var userResponse pb.UserResponse
-	errExec := r.ConnectionClient.QueryRow(queryGetUser, userID).Scan(
+	errExec := r.ConnectionClient.QueryRow(queryGetUser, email).Scan(
 		&userResponse.UserId,
 		&userResponse.Name,
 		&userResponse.PwdHash,
@@ -57,7 +57,7 @@ func (r *MySQLUserRepository) Get(userID int32) (pb.UserResponse, error) {
 
 	if errExec != nil {
 		return pb.UserResponse{}, fmt.Errorf(
-			fmt.Sprintf("Database Exec Error, Couldn't get User With ID: %s in database, Error: %v", userID, errExec.Error()),
+			fmt.Sprintf("Database Exec Error, Couldn't get User With ID: %s in database, Error: %v", email, errExec.Error()),
 		)
 	}
 
@@ -67,18 +67,17 @@ func (r *MySQLUserRepository) Get(userID int32) (pb.UserResponse, error) {
 func (r *MySQLUserRepository) Update(pb.UserRequest) error {
 	return nil
 }
-
-func (r *MySQLUserRepository) Delete(userID int32) error {
+func (r *MySQLUserRepository) Delete(email string) error {
 	stmtSaveUser, err := r.ConnectionClient.Prepare(queryDeleteUser)
 
 	if err != nil {
-		return fmt.Errorf("Database Connection Error, Couldn't delete User With ID: %s in database", userID)
+		return fmt.Errorf("Database Connection Error, Couldn't delete User With ID: %s in database", email)
 	}
 
-	_, err = stmtSaveUser.Exec(userID)
+	_, err = stmtSaveUser.Exec(email)
 
 	if err != nil {
-		return fmt.Errorf("Database Exec Error, Couldn't delete User With ID: %s in database", userID)
+		return fmt.Errorf("Database Exec Error, Couldn't delete User With ID: %s in database", email)
 	}
 
 	return nil
