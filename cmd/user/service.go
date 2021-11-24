@@ -27,14 +27,16 @@ func NewUserService(repo Repository) *UsersService {
 }
 
 func (us *UsersService) Authenticate(context.Context, *pb.AuthRequest) (*pb.Response, error) {
-	return &pb.Response{Code: 501}, fmt.Errorf("method Authenticate not implemented")
+	return &pb.Response{Code: 501}, nil
 }
 
 func (us *UsersService) Create(ctx context.Context, userReq *pb.UserRequest) (*pb.Response, error) {
 	if err := us.repository.Create(*userReq); err != nil {
-		return &pb.Response{Code: 500}, fmt.Errorf("couldn't create user With ID: %s, \n Error: %v", userReq.Id, err)
+		fmt.Printf(
+			fmt.Sprintf("\n couldn't create user With ID: %d, \n Error: %v \n", userReq.UserId, err.Error()),
+		)
+		return &pb.Response{Code: 400}, fmt.Errorf("couldn't create user With ID: %d, \n Error: %v", userReq.UserId, err.Error())
 	}
-
 	return &pb.Response{Code: 200}, nil
 }
 
@@ -42,24 +44,32 @@ func (us *UsersService) Get(ctx context.Context, ID *pb.UserID) (*pb.UserRespons
 	user, err := us.repository.Get(ID.ID)
 
 	if err != nil {
-		return &pb.UserResponse{}, fmt.Errorf("couldn't get user With ID: %s, \n Error: %v", ID.ID, err)
+		return &pb.UserResponse{}, fmt.Errorf("couldn't get user With id: %s, \n Error: %v", ID.GetID(), err.Error())
 	}
 
 	return &user, nil
 }
 
-func (us *UsersService) Update(context.Context, *pb.UserRequest) (*pb.Response, error) {
-	return &pb.Response{}, fmt.Errorf("method update not implemented")
+func (us *UsersService) Update(ctx context.Context, user *pb.UserRequest) (*pb.Response, error) {
+	if err := us.repository.Update(*user); err != nil {
+		return &pb.Response{Code: 400}, fmt.Errorf("couldn't update user with id: %v, \n error: %v", user.UserId, err.Error())
+	}
+	return &pb.Response{Code: 200}, nil
 }
 
 func (us *UsersService) Delete(ctx context.Context, ID *pb.UserID) (*pb.Response, error) {
 	if err := us.repository.Delete(ID.ID); err != nil {
-		return &pb.Response{Code: 500}, fmt.Errorf("couldn't delete user With ID: %s, \n Error: %v", ID.ID, err)
+		return &pb.Response{Code: 400}, fmt.Errorf("couldn't delete user With ID: %s, \n Error: %v", ID.ID, err.Error())
 	}
 
 	return &pb.Response{Code: 200}, nil
 }
 
 func (us *UsersService) GetAll(context.Context, *pb.Void) (*pb.UserColletionResponse, error) {
-	return nil, fmt.Errorf("method getAll not implemented")
+	users, err := us.repository.GetAll()
+	list := pb.UserColletionResponse{Users: users.Users}
+	if err != nil {
+		return &pb.UserColletionResponse{}, fmt.Errorf("couldn't get all users \n Error: %v", err.Error())
+	}
+	return &list, nil
 }

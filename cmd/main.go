@@ -37,7 +37,7 @@ func main() {
 	pb.RegisterUsersServer(server, user.NewUserService(userRepo))
 	fmt.Println("Serving Service")
 	if err := server.Serve(ls); err != nil {
-		fmt.Println(fmt.Sprintln("Error While runing server: %v", err))
+		fmt.Printf("Error While runing server: %s \n", err.Error())
 		log.Fatalf("failed to serve: %s", err)
 	}
 

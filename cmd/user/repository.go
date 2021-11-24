@@ -13,9 +13,10 @@ type MySQLUserRepository struct {
 }
 
 const (
-	querySaveUser   = `INSERT INTO user(id,name, pwdhash,age,aditional_information) values (?,?,?,?,?);`
+	querySaveUser   = `INSERT INTO user(name,pwdhash,age,aditional_information,email) values (?,?,?,?,?);`
 	queryDeleteUser = `DELETE FROM user WHERE Id = ?`
 	queryGetUser    = `SELECT * FROM user WHERE Id = ?`
+	queryGetUsers   = `SELECT * FROM user`
 )
 
 func NewMySQLUserRepository(connection *sql.DB) *MySQLUserRepository {
@@ -28,13 +29,17 @@ func (r *MySQLUserRepository) Create(user pb.UserRequest) error {
 	stmtSaveUser, err := r.ConnectionClient.Prepare(querySaveUser)
 
 	if err != nil {
-		return fmt.Errorf("Connetion Error, Couldn't save User With ID: %s in database, Error: %v", user.Id, err)
+		return fmt.Errorf(
+			fmt.Sprintf("Connetion Error, Couldn't save User With ID: %s in database, Error: %v", user.Email, err.Error()),
+		)
 	}
-
-	_, errExec := stmtSaveUser.Exec(user.Id, user.Name, user.PwdHash, user.Age, user.AdditionalInformation)
+	fmt.Println(user.PwdHash)
+	_, errExec := stmtSaveUser.Exec(user.Name, user.PwdHash, user.Age, user.AdditionalInformation, user.Email)
 
 	if errExec != nil {
-		return fmt.Errorf("Database Exec Error, Couldn't save User With ID: %s in database, Error: %v", user.Id, err)
+		return fmt.Errorf(
+			fmt.Sprintf("Database Exec Error, Couldn't save User With ID: %s in database, Error: %v", user.Email, errExec.Error()),
+		)
 	}
 
 	return nil
@@ -43,14 +48,16 @@ func (r *MySQLUserRepository) Create(user pb.UserRequest) error {
 func (r *MySQLUserRepository) Get(userID string) (pb.UserResponse, error) {
 	var userResponse pb.UserResponse
 	errExec := r.ConnectionClient.QueryRow(queryGetUser, userID).Scan(
-		&userResponse.Id,
+		&userResponse.UserId,
 		&userResponse.PwdHash,
 		&userResponse.Age,
 		&userResponse.AdditionalInformation,
 		&userResponse.Name)
 
 	if errExec != nil {
-		return pb.UserResponse{}, fmt.Errorf("Database Exec Error, Couldn't get User With ID: %s in database, Error: %v", userID, errExec)
+		return pb.UserResponse{}, fmt.Errorf(
+			fmt.Sprintf("Database Exec Error, Couldn't get User With ID: %s in database, Error: %v", userID, errExec.Error()),
+		)
 	}
 
 	return userResponse, nil
@@ -77,5 +84,35 @@ func (r *MySQLUserRepository) Delete(userID string) error {
 }
 
 func (r *MySQLUserRepository) GetAll() (pb.UserColletionResponse, error) {
-	return pb.UserColletionResponse{}, nil
+	var usersResponse pb.UserColletionResponse
+	rows, errExec := r.ConnectionClient.Query(queryGetUsers)
+
+	if errExec != nil {
+		return pb.UserColletionResponse{}, fmt.Errorf(
+			fmt.Sprintf("Database query Error, Couldn't get Users in database,\n Error: %v", errExec.Error()),
+		)
+	}
+
+	for rows.Next() {
+		var user pb.UserResponse
+		err := rows.Scan(
+			&user.UserId,
+			&user.PwdHash,
+			&user.Email,
+			&user.Name,
+			&user.Age,
+			&user.AdditionalInformation,
+			&user.Parents,
+		)
+
+		if err != nil {
+			return pb.UserColletionResponse{}, fmt.Errorf(
+				fmt.Sprintf("Repository  mapping Error, Couldn't get Users in database,\n Error: %v", errExec.Error()),
+			)
+		}
+
+		usersResponse.Users = append(usersResponse.Users, &user)
+	}
+
+	return usersResponse, nil
 }
