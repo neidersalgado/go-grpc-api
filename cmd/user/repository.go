@@ -13,10 +13,12 @@ type MySQLUserRepository struct {
 }
 
 const (
-	querySaveUser   = `INSERT INTO user(name,pwdhash,age,aditional_information,email) values (?,?,?,?,?);`
-	queryDeleteUser = `DELETE FROM user WHERE Id = ?`
-	queryGetUser    = `SELECT Id, name, pwdhash, age, aditional_information FROM user WHERE Id = ?`
-	queryGetUsers   = `SELECT * FROM user`
+	querySaveUser    = `INSERT INTO user(name,pwdhash,age,aditional_information,email) values (?,?,?,?,?);`
+	querySaveParents = `INSERT INTO parent(parent, son) (?,?)`
+	queryDeleteUser  = `DELETE FROM user WHERE email = ?`
+	queryGetUser     = `SELECT name, pwdhash, age, aditional_information FROM user WHERE email = ?`
+	queryGetUsers    = `SELECT email, name, pwdhash, age, aditional_information FROM user`
+	queryUpdateUSer  = `UPDATE user SET name= ?, pwdhash = ?, age =?, aditional_information =? WHERE email = ? `
 )
 
 func NewMySQLUserRepository(connection *sql.DB) *MySQLUserRepository {
@@ -64,7 +66,37 @@ func (r *MySQLUserRepository) Get(email string) (pb.UserResponse, error) {
 	return userResponse, nil
 }
 
-func (r *MySQLUserRepository) Update(pb.UserRequest) error {
+func (r *MySQLUserRepository) Update(userRequest pb.UserRequest) error {
+	user, err := r.Get(userRequest.Email)
+	if err != nil {
+		return fmt.Errorf(
+			fmt.Sprintf("Database Exec Error, Couldn't Update User With ID: %s in database, Error: %v", user.Email, err.Error()),
+		)
+	}
+
+	equal, userToUpdate := getUserToUpdate(user, userRequest)
+	if !equal {
+		stmtSaveUser, err := r.ConnectionClient.Prepare(queryUpdateUSer)
+
+		if err != nil {
+			return fmt.Errorf(
+				fmt.Sprintf("Connetion Error, Couldn't save User With ID: %s in database, Error: %v", user.Email, err.Error()),
+			)
+		}
+		_, errExec := stmtSaveUser.Exec(
+			userToUpdate.Name,
+			userToUpdate.PwdHash,
+			userToUpdate.Age,
+			userToUpdate.AdditionalInformation,
+			userToUpdate.Email,
+		)
+		if errExec != nil {
+			return fmt.Errorf(
+				fmt.Sprintf("Database Exec Error, Couldn't save User With ID: %s in database, Error: %v", user.Email, errExec.Error()),
+			)
+		}
+	}
+
 	return nil
 }
 func (r *MySQLUserRepository) Delete(email string) error {
@@ -115,4 +147,34 @@ func (r *MySQLUserRepository) GetAll() (pb.UserColletionResponse, error) {
 	}
 
 	return usersResponse, nil
+}
+
+func getUserToUpdate(userDB pb.UserResponse, userRequest pb.UserRequest) (bool, pb.UserRequest) {
+	equal := true
+	var userToUpdate pb.UserRequest
+
+	if userDB.Name != userRequest.Name {
+		userToUpdate.Name = userRequest.Name
+		equal = false
+	}
+
+	if userDB.AdditionalInformation != userRequest.AdditionalInformation {
+		userToUpdate.AdditionalInformation = userRequest.AdditionalInformation
+		equal = false
+	}
+
+	if userDB.PwdHash != userRequest.PwdHash {
+		userToUpdate.PwdHash = userRequest.PwdHash
+		equal = false
+	}
+
+	if userDB.Age != userRequest.Age {
+		userToUpdate.Age = userRequest.Age
+		equal = false
+	}
+
+	if equal {
+		return equal, pb.UserRequest{}
+	}
+	return equal, userToUpdate
 }

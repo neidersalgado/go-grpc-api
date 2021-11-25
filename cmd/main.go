@@ -22,7 +22,8 @@ func main() {
 		fmt.Printf("%+v\n", err)
 	}
 
-	ls, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.Port))
+	ls, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", cfg.Port))
+	fmt.Printf("Server listen in %v", ls.Addr())
 	fmt.Println("Listen TCP")
 	if err != nil {
 		log.Fatalf("Could not create the listener %v", err)
