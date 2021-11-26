@@ -16,8 +16,8 @@ const (
 	querySaveUser    = `INSERT INTO user(name,pwdhash,age,aditional_information,email) values (?,?,?,?,?);`
 	querySaveParents = `INSERT INTO parent(parent, son) (?,?)`
 	queryDeleteUser  = `DELETE FROM user WHERE email = ?`
-	queryGetUser     = `SELECT name, pwdhash, age, aditional_information FROM user WHERE email = ?`
-	queryGetUsers    = `SELECT email, name, pwdhash, age, aditional_information FROM user`
+	queryGetUser     = `SELECT Id, name, pwdhash, age, aditional_information FROM user WHERE email = ?`
+	queryGetUsers    = `SELECT Id, email, name, pwdhash, age, aditional_information FROM user`
 	queryUpdateUSer  = `UPDATE user SET name= ?, pwdhash = ?, age =?, aditional_information =? WHERE email = ? `
 )
 
@@ -48,15 +48,24 @@ func (r *MySQLUserRepository) Create(user pb.UserRequest) error {
 }
 
 func (r *MySQLUserRepository) Get(email string) (pb.UserResponse, error) {
+	fmt.Printf("service.grpc.repository GET user email :%v \n", email)
+	stmt, err := r.ConnectionClient.Prepare(queryGetUser)
+	defer stmt.Close()
+	if err != nil {
+		return pb.UserResponse{}, fmt.Errorf(
+			fmt.Sprintf("Connetion Error, Couldn't get User With ID: %s in database, Error: %v", email, err.Error()),
+		)
+	}
 	var userResponse pb.UserResponse
-	errExec := r.ConnectionClient.QueryRow(queryGetUser, email).Scan(
+
+	errExec := stmt.QueryRow(email).Scan(
 		&userResponse.UserId,
 		&userResponse.Name,
 		&userResponse.PwdHash,
 		&userResponse.Age,
 		&userResponse.AdditionalInformation,
 	)
-
+	fmt.Printf("service.grpc.repository GET user row:%v \n", userResponse)
 	if errExec != nil {
 		return pb.UserResponse{}, fmt.Errorf(
 			fmt.Sprintf("Database Exec Error, Couldn't get User With ID: %s in database, Error: %v", email, errExec.Error()),
@@ -64,6 +73,7 @@ func (r *MySQLUserRepository) Get(email string) (pb.UserResponse, error) {
 	}
 
 	return userResponse, nil
+
 }
 
 func (r *MySQLUserRepository) Update(userRequest pb.UserRequest) error {
@@ -116,25 +126,32 @@ func (r *MySQLUserRepository) Delete(email string) error {
 }
 
 func (r *MySQLUserRepository) GetAll() (pb.UserColletionResponse, error) {
-	var usersResponse pb.UserColletionResponse
-	rows, errExec := r.ConnectionClient.Query(queryGetUsers)
+	fmt.Printf("service.grpc.repository getAll\n")
+	stmt, err := r.ConnectionClient.Prepare(queryGetUsers)
+	if err != nil {
+		return pb.UserColletionResponse{}, fmt.Errorf(
+			fmt.Sprintf("Database prepare stmt Error, Couldn't get Users in database,\n Error: %v", err.Error()),
+		)
+	}
+
+	rows, errExec := stmt.Query()
+	fmt.Sprintf("service.grpc.repository getAll execute \n")
 
 	if errExec != nil {
 		return pb.UserColletionResponse{}, fmt.Errorf(
 			fmt.Sprintf("Database query Error, Couldn't get Users in database,\n Error: %v", errExec.Error()),
 		)
 	}
-
+	var usersResponse pb.UserColletionResponse
 	for rows.Next() {
 		var user pb.UserResponse
 		err := rows.Scan(
 			&user.UserId,
-			&user.PwdHash,
 			&user.Email,
 			&user.Name,
+			&user.PwdHash,
 			&user.Age,
 			&user.AdditionalInformation,
-			&user.Parents,
 		)
 
 		if err != nil {

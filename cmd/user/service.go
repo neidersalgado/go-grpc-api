@@ -41,6 +41,7 @@ func (us *UsersService) Create(ctx context.Context, userReq *pb.UserRequest) (*p
 }
 
 func (us *UsersService) Get(ctx context.Context, request *pb.UserIDRequest) (*pb.UserResponse, error) {
+	fmt.Printf("service.grpc. GET user request :%v \n", request)
 	user, err := us.repository.Get(request.Email)
 
 	if err != nil {
@@ -66,10 +67,13 @@ func (us *UsersService) Delete(ctx context.Context, request *pb.UserIDRequest) (
 }
 
 func (us *UsersService) GetAll(context.Context, *pb.Void) (*pb.UserColletionResponse, error) {
+	fmt.Printf("service.get all\n")
 	users, err := us.repository.GetAll()
-	list := pb.UserColletionResponse{Users: users.Users}
+
 	if err != nil {
 		return &pb.UserColletionResponse{}, fmt.Errorf("couldn't get all users \n Error: %v", err.Error())
 	}
+	list := pb.UserColletionResponse{Users: users.Users}
+
 	return &list, nil
 }
