@@ -1,5 +1,6 @@
 CREATE TABLE user (
-	Id VARCHAR(20),
+	Id int not null AUTO_INCREMENT,
+	email varchar(60) not null,
     name VARCHAR(25) not null,
 	pwdhash VARCHAR(100),
 	age INT,
@@ -9,8 +10,8 @@ CREATE TABLE user (
 
 CREATE TABLE parent (
 	Id INT NOT NULL AUTO_INCREMENT,
-	parent VARCHAR(20),
-	son VARCHAR(20),
+	parent int,
+	son int,
 	PRIMARY KEY (Id),
     FOREIGN KEY (parent) REFERENCES user(Id),
     FOREIGN KEY (son) REFERENCES user(Id)

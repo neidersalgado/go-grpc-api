@@ -4,21 +4,23 @@ option go_package = "pb";
 
 
 message UserRequest{
-    string id =1;
-    string name =2;
-    string pwd_hash = 3;
-    int32 age = 4;
-    string additional_information = 5;
-    repeated UserResponse parents =6;
+    int32 user_id =1;
+    string pwd_hash = 2;
+    string email = 3;
+    string name =4;
+    int32 age = 5;
+    string additional_information = 6;
+    repeated UserRequest parents =7;
 }
 
 message UserResponse{
-    string id =1;
-    string name =2;
-    string pwd_hash = 3;
-    int32 age = 4;
-    string additional_information = 5;
-    repeated UserResponse parents =6;
+    int32 user_id =1;
+    string pwd_hash = 2;
+    string email = 3;
+    string name =4;
+    int32 age = 5;
+    string additional_information = 6;
+    repeated UserResponse parents =7;
 }
 
 message UserColletionResponse{
@@ -48,14 +50,15 @@ message AuthRequest{
     string hash = 2;
 }
 
-message UserID {
-    string ID = 1;
+message UserIDRequest {
+    string email = 1;
 }
+
 service Users {
     rpc Authenticate(AuthRequest) returns(Response) {}
     rpc Create(UserRequest) returns(Response) {}
-    rpc Get(UserID) returns(UserResponse) {}
+    rpc Get(UserIDRequest) returns(UserResponse) {}
     rpc Update(UserRequest) returns(Response) {}
-    rpc Delete(UserID) returns(Response) {}
+    rpc Delete(UserIDRequest) returns(Response) {}
     rpc GetAll(void) returns (UserColletionResponse){}
 }
