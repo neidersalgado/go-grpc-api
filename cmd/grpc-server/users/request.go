@@ -9,3 +9,7 @@ type UserRequest struct {
 	AdditionalInformation string         `json:"additional_information,omitempty"`
 	Parents               []*UserRequest `json:"parents,omitempty"`
 }
+
+type createUserRequest struct {
+	UserRequest `json:"user,omitempty"`
+}
