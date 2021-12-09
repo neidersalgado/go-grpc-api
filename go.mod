@@ -5,6 +5,7 @@ go 1.13
 require (
 	github.com/caarlos0/env/v6 v6.7.2
 	github.com/cweill/gotests v1.6.0 // indirect
+	github.com/go-kit/kit v0.12.0 // indirect
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/google/go-cmp v0.5.6 // indirect
 	golang.org/x/mod v0.5.1 // indirect

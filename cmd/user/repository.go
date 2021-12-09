@@ -18,7 +18,7 @@ const (
 	queryDeleteUser  = `DELETE FROM user WHERE email = ?`
 	queryGetUser     = `SELECT Id, name, pwdhash, age, aditional_information FROM user WHERE email = ?`
 	queryGetUsers    = `SELECT Id, email, name, pwdhash, age, aditional_information FROM user`
-	queryUpdateUSer  = `UPDATE user SET name= ?, pwdhash = ?, age =?, aditional_information =? WHERE email = ? `
+	queryUpdateUSer  = `UPDATE user SET name= ?, age =?, aditional_information =? WHERE email = ?`
 )
 
 func NewMySQLUserRepository(connection *sql.DB) *MySQLUserRepository {
@@ -85,26 +85,29 @@ func (r *MySQLUserRepository) Update(userRequest pb.UserRequest) error {
 	}
 
 	equal, userToUpdate := getUserToUpdate(user, userRequest)
+	fmt.Printf("equal? : %+v \n userToUpdate %+v \n", equal, userToUpdate)
 	if !equal {
-		stmtSaveUser, err := r.ConnectionClient.Prepare(queryUpdateUSer)
-
+		fmt.Println("updating")
+		stmtUpdateUser, err := r.ConnectionClient.Prepare(queryUpdateUSer)
+		fmt.Println("preparing")
 		if err != nil {
 			return fmt.Errorf(
 				fmt.Sprintf("Connetion Error, Couldn't save User With ID: %s in database, Error: %v", user.Email, err.Error()),
 			)
 		}
-		_, errExec := stmtSaveUser.Exec(
+		fmt.Println("executing")
+		_, errExec := stmtUpdateUser.Exec(
 			userToUpdate.Name,
-			userToUpdate.PwdHash,
 			userToUpdate.Age,
 			userToUpdate.AdditionalInformation,
-			userToUpdate.Email,
+			userRequest.Email,
 		)
 		if errExec != nil {
 			return fmt.Errorf(
 				fmt.Sprintf("Database Exec Error, Couldn't save User With ID: %s in database, Error: %v", user.Email, errExec.Error()),
 			)
 		}
+		fmt.Println("non error updating")
 	}
 
 	return nil
@@ -169,24 +172,32 @@ func (r *MySQLUserRepository) GetAll() (pb.UserColletionResponse, error) {
 func getUserToUpdate(userDB pb.UserResponse, userRequest pb.UserRequest) (bool, pb.UserRequest) {
 	equal := true
 	var userToUpdate pb.UserRequest
+	fmt.Printf("\n user request to update  \n  %+v \n  usuario response \n %+v", userRequest, userDB)
 
 	if userDB.Name != userRequest.Name {
+		fmt.Printf("\n name diferent \n")
 		userToUpdate.Name = userRequest.Name
 		equal = false
 	}
 
 	if userDB.AdditionalInformation != userRequest.AdditionalInformation {
 		userToUpdate.AdditionalInformation = userRequest.AdditionalInformation
+
+		fmt.Printf("\n information diferent \n")
 		equal = false
 	}
 
 	if userDB.PwdHash != userRequest.PwdHash {
 		userToUpdate.PwdHash = userRequest.PwdHash
+
+		fmt.Printf("\n hash diferent \n")
 		equal = false
 	}
 
 	if userDB.Age != userRequest.Age {
 		userToUpdate.Age = userRequest.Age
+
+		fmt.Printf("\n age diferent \n")
 		equal = false
 	}
 
