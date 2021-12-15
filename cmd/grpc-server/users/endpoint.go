@@ -3,6 +3,7 @@ package grpc
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/go-kit/kit/endpoint"
 
@@ -12,9 +13,9 @@ import (
 )
 
 const (
-	invalidData = "invalid request data"
+	invalidData = "invalid request data %s"
 	invalidAuth = "no user found"
-	notCreated  = "User couldn't be created"
+	notCreated  = "User couldn't be created \n %v"
 )
 
 type grpcUserEndpoints struct {
@@ -42,7 +43,7 @@ func MakeAuthenticateUserEndpoint(s domain.UserService) endpoint.Endpoint {
 		requestData, validCast := request.(pb.UserIDRequest)
 
 		if !validCast {
-			return nil, errors.New(invalidData)
+			return nil, errors.New(fmt.Sprintf(invalidData, "Authenticate"))
 		}
 
 		usr, err := s.GetByEmail(ctx, requestData.Email)
@@ -57,10 +58,10 @@ func MakeAuthenticateUserEndpoint(s domain.UserService) endpoint.Endpoint {
 
 func MakeCreateUserEndpoint(s domain.UserService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		requestData, validCast := request.(UserRequest)
+		requestData, validCast := request.(createUserRequest)
 
 		if !validCast {
-			return nil, errors.New(invalidData)
+			return nil, errors.New(fmt.Sprintf(invalidData, ": Create"))
 		}
 		usr := users.User{
 			UserId:                requestData.UserId,
@@ -73,7 +74,7 @@ func MakeCreateUserEndpoint(s domain.UserService) endpoint.Endpoint {
 		err = s.Create(ctx, usr)
 
 		if err != nil {
-			return nil, errors.New(notCreated)
+			return nil, errors.New(fmt.Sprintf(notCreated, err))
 		}
 
 		return createUserResponse{Id: usr.Email, Error: err}, nil
@@ -82,15 +83,24 @@ func MakeCreateUserEndpoint(s domain.UserService) endpoint.Endpoint {
 
 func MakeGetUserEndpoint(s domain.UserService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		requestData, validCast := request.(pb.UserIDRequest)
+		requestData, validCast := request.(getUserRequest)
 
 		if !validCast {
-			return nil, errors.New(invalidData)
+			return nil, errors.New(fmt.Sprintf(invalidData, " get"))
 		}
 
-		response, err = s.GetByEmail(ctx, requestData.Email)
+		usr, err := s.GetByEmail(ctx, requestData.Email)
 
-		return
+		return getUserResponse{
+			UserResponse: UserResponse{
+				UserId:                usr.UserId,
+				PwdHash:               usr.PwdHash,
+				Email:                 usr.Email,
+				Name:                  usr.Name,
+				Age:                   usr.Age,
+				AdditionalInformation: usr.AdditionalInformation ,
+			},
+		}, nil
 	}
 }
 

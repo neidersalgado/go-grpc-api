@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"testing"
 
@@ -18,7 +17,6 @@ func TestMain(m *testing.M) {
 	repository, err = NewMySQLUserRepository()
 
 	if err != nil {
-		fmt.Println(err)
 		panic(err)
 	}
 

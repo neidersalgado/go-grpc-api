@@ -5,6 +5,7 @@ go 1.13
 require (
 	github.com/caarlos0/env/v6 v6.7.2
 	github.com/go-kit/kit v0.12.0
+	github.com/go-kit/log v0.2.0
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/leodido/go-urn v1.2.1 // indirect

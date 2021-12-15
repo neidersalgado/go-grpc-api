@@ -73,7 +73,6 @@ func (r *MySQLUserRepository) Create(ctx context.Context, user users.User) error
 			fmt.Sprintf("Connetion Error, Couldn't save User With ID: %s in database, Error: %v", user.Email, err.Error()),
 		)
 	}
-	fmt.Println(user.PwdHash)
 	_, errExec := stmtSaveUser.Exec(user.Name, user.PwdHash, user.Age, user.AdditionalInformation, user.Email)
 
 	if errExec != nil {
@@ -86,7 +85,6 @@ func (r *MySQLUserRepository) Create(ctx context.Context, user users.User) error
 }
 
 func (r *MySQLUserRepository) GetByEmail(ctx context.Context, email string) (users.User, error) {
-	fmt.Printf("service.grpc.repository GET user email :%v \n", email)
 	stmt, err := r.db.Prepare(QUERYGETUSER)
 	defer stmt.Close()
 	if err != nil {
@@ -94,23 +92,22 @@ func (r *MySQLUserRepository) GetByEmail(ctx context.Context, email string) (use
 			fmt.Sprintf("Connetion Error, Couldn't get User With ID: %s in database, Error: %v", email, err.Error()),
 		)
 	}
-	var userDB users.User
+	userDB := users.User{}
 
-	errExec := stmt.QueryRow(email).Scan(
+	row := stmt.QueryRow(email)
+	err = row.Scan(
 		&userDB.UserId,
 		&userDB.Name,
 		&userDB.PwdHash,
 		&userDB.Age,
 		&userDB.AdditionalInformation,
 	)
-	fmt.Printf("service.grpc.repository GET user row:%v \n", userDB)
-	if errExec != nil {
-		return users.User{}, fmt.Errorf(
-			fmt.Sprintf("Database Exec Error, Couldn't get User With ID: %s in database, Error: %v", email, errExec.Error()),
-		)
+
+	if err == sql.ErrNoRows {
+		return userDB, nil
 	}
 
-	return userDB, nil
+	return userDB, err
 
 }
 
@@ -123,17 +120,13 @@ func (r *MySQLUserRepository) Update(ctx context.Context, userToUpdate users.Use
 	}
 
 	equal, userToUpdate := getUserToUpdate(user, userToUpdate)
-	fmt.Printf("equal? : %+v \n userToUpdate %+v \n", equal, userToUpdate)
 	if !equal {
-		fmt.Println("updating")
 		stmtUpdateUser, err := r.db.Prepare(QUERYUPDATEUSER)
-		fmt.Println("preparing")
 		if err != nil {
 			return fmt.Errorf(
 				fmt.Sprintf("Connetion Error, Couldn't save User With ID: %s in database, Error: %v", user.Email, err.Error()),
 			)
 		}
-		fmt.Println("executing")
 		_, errExec := stmtUpdateUser.Exec(
 			userToUpdate.Name,
 			userToUpdate.Age,
@@ -145,7 +138,6 @@ func (r *MySQLUserRepository) Update(ctx context.Context, userToUpdate users.Use
 				fmt.Sprintf("Database Exec Error, Couldn't save User With ID: %s in database, Error: %v", user.Email, errExec.Error()),
 			)
 		}
-		fmt.Println("non error updating")
 	}
 
 	return nil
@@ -211,29 +203,22 @@ func getUserToUpdate(userDB users.User, userToUpdate users.User) (bool, users.Us
 	var userUpdate users.User
 
 	if userDB.Name != userToUpdate.Name {
-		fmt.Printf("\n name diferent \n")
 		userUpdate.Name = userToUpdate.Name
 		equal = false
 	}
 
 	if userDB.AdditionalInformation != userToUpdate.AdditionalInformation {
 		userUpdate.AdditionalInformation = userToUpdate.AdditionalInformation
-
-		fmt.Printf("\n information diferent \n")
 		equal = false
 	}
 
 	if userDB.PwdHash != userToUpdate.PwdHash {
 		userUpdate.PwdHash = userToUpdate.PwdHash
-
-		fmt.Printf("\n hash diferent \n")
 		equal = false
 	}
 
 	if userDB.Age != userToUpdate.Age {
 		userUpdate.Age = userToUpdate.Age
-
-		fmt.Printf("\n age diferent \n")
 		equal = false
 	}
 

@@ -5,12 +5,13 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/go-kit/log"
 	"github.com/stretchr/testify/assert"
 )
 
 func Test_Create_ValidData_OkResult(t *testing.T) {
 	repository := repositoryMock{}
-	service := NewUserService(&repository)
+	service := NewUserService(&repository, log.NewNopLogger())
 	userToAdd := User{Email: "test@gmail.com", Name: "John", Age: 24, AdditionalInformation: "none"}
 	repository.On("Create", context.Background(), userToAdd).Return(nil)
 	repository.On("GetByEmail", context.Background(), userToAdd.Email).Return(User{}, nil)
@@ -26,7 +27,7 @@ func Test_Create_ValidData_OkResult(t *testing.T) {
 func Test_Create_DuplicateData_ReturnErrorGet(t *testing.T) {
 
 	repository := repositoryMock{}
-	service := NewUserService(&repository)
+	service := NewUserService(&repository, log.NewNopLogger())
 	userToAdd := User{Email: "test@gmail.com", Name: "John", Age: 24, AdditionalInformation: "none"}
 	repository.On("GetByEmail", context.Background(), userToAdd.Email).Return(User{}, errors.New(""))
 
@@ -40,7 +41,7 @@ func Test_Create_DuplicateData_ReturnErrorGet(t *testing.T) {
 func Test_Create_RepositoryGetError_ReturnError(t *testing.T) {
 
 	repository := repositoryMock{}
-	service := NewUserService(&repository)
+	service := NewUserService(&repository, log.NewNopLogger())
 	userToAdd := User{Email: "test@gmail.com", Name: "John", Age: 24, AdditionalInformation: "none"}
 	repository.On("GetByEmail", context.Background(), userToAdd.Email).Return(User{}, errors.New(""))
 
@@ -54,7 +55,7 @@ func Test_Create_RepositoryGetError_ReturnError(t *testing.T) {
 func Test_Create_DuplicateData_ReturnError(t *testing.T) {
 
 	repository := repositoryMock{}
-	service := NewUserService(&repository)
+	service := NewUserService(&repository, log.NewNopLogger())
 	userToAdd := User{UserId: 20, Email: "test@gmail.com", Name: "John", Age: 24, AdditionalInformation: "none"}
 	repository.On("GetByEmail", context.Background(), userToAdd.Email).Return(userToAdd, nil)
 
@@ -68,7 +69,7 @@ func Test_Create_DuplicateData_ReturnError(t *testing.T) {
 func Test_Create_CreateFails_ReturnErrorCreate(t *testing.T) {
 
 	repository := repositoryMock{}
-	service := NewUserService(&repository)
+	service := NewUserService(&repository, log.NewNopLogger())
 	userToAdd := User{Email: "test@gmail.com", Name: "John", Age: 24, AdditionalInformation: "none"}
 	repository.On("Create", context.Background(), userToAdd).Return(errors.New(""))
 	repository.On("GetByEmail", context.Background(), userToAdd.Email).Return(User{}, nil)

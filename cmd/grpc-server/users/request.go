@@ -13,3 +13,7 @@ type UserRequest struct {
 type createUserRequest struct {
 	UserRequest `json:"user,omitempty"`
 }
+
+type getUserRequest struct {
+	Email string `json:"email,omitempty"`
+}

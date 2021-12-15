@@ -3,7 +3,6 @@ package grpc
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/transport"
@@ -27,7 +26,7 @@ func NewGrpcUserServer(endpoints grpcUserEndpoints, logger log.Logger) pb.UsersS
 		grpc.ServerErrorHandler(transport.NewLogErrorHandler(logger)),
 	}
 	server := &grpcUserServer{
-		getUser:      grpc.NewServer(endpoints.GetUserEndpoint, nil, nil, options...),
+		getUser:      grpc.NewServer(endpoints.GetUserEndpoint, decodeGetUserRequest, encodeGetUserResponse, options...),
 		authenticate: grpc.NewServer(endpoints.AuthenticateUserEndpoint, nil, nil, options...),
 		createUser:   grpc.NewServer(endpoints.CreateUserEndpoint, decodeCreateUserRequest, encodeCreateUserResponse, options...),
 		getAll:       grpc.NewServer(endpoints.getAllEndpoint, nil, nil, options...),
@@ -38,39 +37,42 @@ func NewGrpcUserServer(endpoints grpcUserEndpoints, logger log.Logger) pb.UsersS
 	return server
 }
 
-func decodeCreateUserRequest(ctx context.Context, grpcReq interface{}) (interface{}, error) {
-	reqData, validCast := grpcReq.(*pb.UserRequest)
-	if !validCast {
-		return nil, errors.New("invalid input data")
-	}
-	usr := UserRequest{
-		UserId:                reqData.UserId,
-		PwdHash:               reqData.PwdHash,
-		Email:                 reqData.Email,
-		Name:                  reqData.Name,
-		Age:                   reqData.Age,
-		AdditionalInformation: reqData.AdditionalInformation,
-	}
+func (srv *grpcUserServer) Authenticate(ctx context.Context, auth *pb.AuthRequest) (*pb.Response, error) {
+	_, grpcResponse, err := srv.authenticate.ServeGRPC(ctx, auth)
 
-	return createUserRequest{UserRequest: usr}, nil
+	return grpcResponse.(*pb.Response), err
 }
 
-func encodeCreateUserResponse(ctx context.Context, resp interface{}) (interface{}, error) {
+func (srv *grpcUserServer) Create(ctx context.Context, user *pb.UserRequest) (*pb.Response, error) {
+	_, grpcResponse, err := srv.createUser.ServeGRPC(ctx, user)
 
-	fmt.Println("encode before cast", resp)
-	respData, validCast := resp.(createUserResponse)
-	fmt.Println("Cast", respData, validCast)
-	if !validCast {
-		return nil, errors.New("invalid input data")
+	response, ok := grpcResponse.(*pb.Response)
+	if !ok {
+		return nil, errors.New("invalid input data create")
 	}
+	return response, err
+}
 
-	if respData.Error != nil {
-		if respData.Error.Error() == "user already exists" {
-			return &pb.Response{Code: pb.Response_FAILED}, nil
-		} else {
-			return &pb.Response{Code: pb.Response_INVALIDINPUT}, nil
-		}
-	}
+func (srv *grpcUserServer) Get(ctx context.Context, uid *pb.UserIDRequest) (*pb.UserResponse, error) {
+	_, grpcResponse, err := srv.getUser.ServeGRPC(ctx, uid)
 
-	return &pb.Response{Code: pb.Response_OK}, nil
+	return grpcResponse.(*pb.UserResponse), err
+}
+
+func (srv *grpcUserServer) Update(ctx context.Context, user *pb.UserRequest) (*pb.Response, error) {
+	_, grpcResponse, err := srv.update.ServeGRPC(ctx, user)
+
+	return grpcResponse.(*pb.Response), err
+}
+
+func (srv *grpcUserServer) Delete(ctx context.Context, uid *pb.UserIDRequest) (*pb.Response, error) {
+	_, grpcResponse, err := srv.delete.ServeGRPC(ctx, uid)
+
+	return grpcResponse.(*pb.Response), err
+}
+
+func (srv *grpcUserServer) GetAll(ctx context.Context, void *pb.Void) (*pb.UserColletionResponse, error) {
+	_, grpcResponse, err := srv.getAll.ServeGRPC(ctx, void)
+
+	return grpcResponse.(*pb.UserColletionResponse), err
 }

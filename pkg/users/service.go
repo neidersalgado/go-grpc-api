@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/go-kit/log"
 	"gopkg.in/go-playground/validator.v9"
 )
 
@@ -25,24 +26,26 @@ type Repository interface {
 
 type UserService struct {
 	repository Repository
+	logger     log.Logger
 }
 
-func NewUserService(repo Repository) *UserService {
+func NewUserService(repo Repository, log log.Logger) *UserService {
 	return &UserService{
 		repository: repo,
+		logger:     log,
 	}
 }
 
 //Create - add a new user into database
 func (us *UserService) Create(ctx context.Context, user User) error {
-
+	us.logger.Log("userService", "Create")
 	v := validator.New()
 
 	if errVal := v.Struct(user); errVal != nil {
 		errorMessage := errVal.(validator.ValidationErrors)[0]
 		return errors.New(errorMessage.Field() + " is not valid")
 	}
-
+	us.logger.Log("userService", "check if user exist")
 	dbUser, err := us.repository.GetByEmail(ctx, user.Email)
 
 	if err != nil {
@@ -50,16 +53,17 @@ func (us *UserService) Create(ctx context.Context, user User) error {
 	}
 
 	if dbUser.UserId > 0 {
-
+		us.logger.Log("userService", "User Exist")
 		return errors.New("user with Email already exists")
 	}
-
+	us.logger.Log("userService", "Creating User")
 	errCreate := us.repository.Create(ctx, user)
 
 	if errCreate != nil {
+		us.logger.Log("userService", "Error Creating", errCreate)
 		return errCreate
 	}
-
+	us.logger.Log("userService", "Created")
 	return nil
 
 }
