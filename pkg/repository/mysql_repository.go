@@ -200,7 +200,7 @@ func (r *MySQLUserRepository) GetAll(ctx context.Context) ([]users.User, error) 
 func getUserToUpdate(userDB users.User, userToUpdate users.User) (bool, users.User) {
 	equal := true
 	var userUpdate users.User
-
+	userUpdate.Email = userToUpdate.Email
 	if userDB.Name != userToUpdate.Name {
 		userUpdate.Name = userToUpdate.Name
 		equal = false
