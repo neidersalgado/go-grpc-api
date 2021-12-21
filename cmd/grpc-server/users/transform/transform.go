@@ -5,7 +5,7 @@ import (
 	domain "github.com/neidersalgado/go-camp-grpc/pkg/users"
 )
 
-func FromRequestToDomain(userToMap pb.UserRequest) domain.User {
+func FromRequestToDomainS(userToMap pb.UserRequest) domain.User {
 	return domain.User{
 		UserId:                userToMap.UserId,
 		PwdHash:               userToMap.PwdHash,
@@ -17,7 +17,7 @@ func FromRequestToDomain(userToMap pb.UserRequest) domain.User {
 }
 
 //ToGrpcUser maps a domain user to a grpc user
-func FromDomainToResponse(userToMap domain.User) pb.UserResponse {
+func FromDomainToResponseS(userToMap domain.User) pb.UserResponse {
 	return pb.UserResponse{
 		UserId:                userToMap.UserId,
 		PwdHash:               userToMap.PwdHash,

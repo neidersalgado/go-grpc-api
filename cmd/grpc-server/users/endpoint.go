@@ -47,7 +47,6 @@ func MakeAuthenticateUserEndpoint(s domain.UserService) endpoint.Endpoint {
 
 		err = s.Authenticate(ctx, requestData)
 		if err != nil {
-			fmt.Println(err)
 			return response, err
 		}
 
