@@ -42,3 +42,36 @@ func encodeGetUserResponse(ctx context.Context, resp interface{}) (interface{}, 
 		AdditionalInformation: usrResponse.AdditionalInformation,
 	}, nil
 }
+
+func encodeResponse(ctx context.Context, resp interface{}) (interface{}, error) {
+	response, validCast := resp.(Response)
+	if !validCast {
+		return &pb.Response{Code: 400}, errors.New("invalid input data to encode")
+	}
+	return &pb.Response{Code: pb.Response_CodeResult(response.Code)}, nil
+}
+
+func encodeGetAllResponse(ctx context.Context, resp interface{}) (interface{}, error) {
+	usrs, validCast := resp.(getAllUsersResponse)
+	if !validCast {
+		return &pb.Response{Code: 400}, errors.New("invalid input data to encode")
+	}
+
+	usersResponse := make([]*pb.UserResponse, len(usrs.Users))
+
+	for _, usr := range usrs.Users {
+		userPb := pb.UserResponse{
+			UserId:                usr.UserId,
+			PwdHash:               usr.PwdHash,
+			Email:                 usr.Email,
+			Name:                  usr.Name,
+			Age:                   usr.Age,
+			AdditionalInformation: usr.AdditionalInformation,
+		}
+		usersResponse = append(usersResponse, &userPb)
+	}
+	usersCollection := &pb.UserColletionResponse{
+		Users: usersResponse,
+	}
+	return usersCollection, nil
+}

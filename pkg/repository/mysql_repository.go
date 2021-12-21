@@ -144,7 +144,6 @@ func (r *MySQLUserRepository) Update(ctx context.Context, userToUpdate users.Use
 }
 func (r *MySQLUserRepository) Delete(ctx context.Context, email string) error {
 	stmtSaveUser, err := r.db.Prepare(QUERYDELETEUSER)
-
 	if err != nil {
 		return fmt.Errorf("Database Connection Error, Couldn't delete User With ID: %s in database", email)
 	}

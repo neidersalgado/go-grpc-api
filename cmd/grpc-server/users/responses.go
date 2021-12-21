@@ -18,3 +18,11 @@ type UserResponse struct {
 	AdditionalInformation string         `json:"additional_information,omitempty"`
 	Parents               []*UserRequest `json:"parents,omitempty"`
 }
+
+type Response struct {
+	Code int32 `json:"code,omitempty"`
+}
+
+type getAllUsersResponse struct {
+	Users []UserResponse
+}

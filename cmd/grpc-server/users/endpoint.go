@@ -7,13 +7,12 @@ import (
 
 	"github.com/go-kit/kit/endpoint"
 
-	"github.com/neidersalgado/go-camp-grpc/cmd/grpc-server/pb"
 	"github.com/neidersalgado/go-camp-grpc/pkg/users"
 	domain "github.com/neidersalgado/go-camp-grpc/pkg/users"
 )
 
 const (
-	invalidData = "invalid request data %s"
+	invalidData = "invalid request data %v"
 	invalidAuth = "no user found"
 	notCreated  = "User couldn't be created \n %v"
 )
@@ -39,20 +38,20 @@ func NewGrpcUserServerEndpoints(s domain.UserService) *grpcUserEndpoints {
 }
 
 func MakeAuthenticateUserEndpoint(s domain.UserService) endpoint.Endpoint {
+
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		requestData, validCast := request.(pb.UserIDRequest)
-
+		requestData, validCast := request.(domain.Auth)
 		if !validCast {
-			return nil, errors.New(fmt.Sprintf(invalidData, "Authenticate"))
+			return Response{Code: 400}, errors.New(fmt.Sprintf(invalidData, "Authenticate"))
 		}
 
-		usr, err := s.GetByEmail(ctx, requestData.Email)
-
-		if usr.UserId >= 0 {
-			return nil, errors.New(invalidAuth)
+		err = s.Authenticate(ctx, requestData)
+		if err != nil {
+			fmt.Println(err)
+			return response, err
 		}
 
-		return usr, nil
+		return Response{Code: 200}, nil
 	}
 }
 
@@ -61,7 +60,7 @@ func MakeCreateUserEndpoint(s domain.UserService) endpoint.Endpoint {
 		requestData, validCast := request.(createUserRequest)
 
 		if !validCast {
-			return nil, errors.New(fmt.Sprintf(invalidData, ": Create"))
+			return createUserResponse{}, errors.New(fmt.Sprintf(invalidData, ": Create"))
 		}
 		usr := users.User{
 			UserId:                requestData.UserId,
@@ -83,10 +82,10 @@ func MakeCreateUserEndpoint(s domain.UserService) endpoint.Endpoint {
 
 func MakeGetUserEndpoint(s domain.UserService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		requestData, validCast := request.(getUserRequest)
+		requestData, validCast := request.(userIdRequest)
 
 		if !validCast {
-			return nil, errors.New(fmt.Sprintf(invalidData, " get"))
+			return getAllUsersResponse{}, errors.New(fmt.Sprintf(invalidData, " get"))
 		}
 
 		usr, err := s.GetByEmail(ctx, requestData.Email)
@@ -98,7 +97,7 @@ func MakeGetUserEndpoint(s domain.UserService) endpoint.Endpoint {
 				Email:                 usr.Email,
 				Name:                  usr.Name,
 				Age:                   usr.Age,
-				AdditionalInformation: usr.AdditionalInformation ,
+				AdditionalInformation: usr.AdditionalInformation,
 			},
 		}, nil
 	}
@@ -106,24 +105,32 @@ func MakeGetUserEndpoint(s domain.UserService) endpoint.Endpoint {
 
 func MakeGetAllEndpoint(s domain.UserService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		_, validCast := request.(pb.Void)
+		usersData, err := s.GetAll(ctx)
 
-		if !validCast {
-			return nil, errors.New(invalidData)
+		allUsersResponse := getAllUsersResponse{Users: []UserResponse{}}
+
+		for _, usr := range usersData {
+			UserResponse := UserResponse{
+				UserId:                usr.UserId,
+				PwdHash:               usr.PwdHash,
+				Email:                 usr.Email,
+				Name:                  usr.Name,
+				Age:                   usr.Age,
+				AdditionalInformation: usr.AdditionalInformation,
+			}
+			allUsersResponse.Users = append(allUsersResponse.Users, UserResponse)
 		}
 
-		response, err = s.GetAll(ctx)
-
-		return
+		return allUsersResponse, nil
 	}
 }
 
 func MakeUpdateUserEndpoint(s domain.UserService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		requestData, validCast := request.(pb.UserRequest)
-
+		requestData, validCast := request.(updateUserRequest)
+		fmt.Printf("cast: %+v", validCast)
 		if !validCast {
-			return nil, errors.New(invalidData)
+			return Response{Code: 400}, errors.New(fmt.Sprintf(invalidData, "Update"))
 		}
 
 		usr := users.User{
@@ -135,22 +142,24 @@ func MakeUpdateUserEndpoint(s domain.UserService) endpoint.Endpoint {
 			AdditionalInformation: requestData.AdditionalInformation,
 		}
 		err = s.Update(ctx, usr)
-		return
+		if err != nil {
+			return Response{Code: 400}, errors.New(fmt.Sprintf(invalidData, err))
+		}
+		return Response{Code: 200}, nil
 	}
 }
 
 func MakeDeleteUserEndpoint(s domain.UserService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		requestData, validCast := request.(pb.UserIDRequest)
+		requestData, validCast := request.(userIdRequest)
 
 		if !validCast {
-			return nil, errors.New(invalidData)
+			return Response{Code: 400}, errors.New(invalidData)
 		}
-
 		err = s.Delete(ctx, requestData.Email)
 		if err != nil {
-
+			return Response{Code: 400}, err
 		}
-		return
+		return Response{Code: 200}, nil
 	}
 }

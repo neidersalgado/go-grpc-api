@@ -3,12 +3,14 @@ package users
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/go-kit/log"
 	"gopkg.in/go-playground/validator.v9"
 )
 
 type Service interface {
+	Authenticate(ctx context.Context, auth Auth) error
 	Create(ctx context.Context, user User) error
 	Get(ctx context.Context, email string) (User, error)
 	Update(ctx context.Context, user User) error
@@ -34,6 +36,21 @@ func NewUserService(repo Repository, log log.Logger) *UserService {
 		repository: repo,
 		logger:     log,
 	}
+}
+
+//Authenticate - validate has in database
+func (us *UserService) Authenticate(ctx context.Context, auth Auth) error {
+	usr, err := us.GetByEmail(ctx, auth.Mail)
+
+	if err != nil {
+		return errors.New(fmt.Sprintf("User not found %+v", auth.Mail))
+	}
+
+	if usr.PwdHash != auth.Hash {
+		return errors.New("authentication failed")
+	}
+
+	return nil
 }
 
 //Create - add a new user into database
@@ -128,18 +145,16 @@ func (us *UserService) Update(ctx context.Context, user User) error {
 
 //Delete - removes a user
 func (us *UserService) Delete(ctx context.Context, email string) error {
-
 	userToDelete, err := us.repository.GetByEmail(ctx, email)
 
 	if err != nil {
 		return err
 	}
-
 	if userToDelete.UserId == 0 {
 		return errors.New("user not found")
 	}
 
-	if errD := us.repository.Delete(ctx, userToDelete.Email); errD != nil {
+	if errD := us.repository.Delete(ctx, email); errD != nil {
 		return errD
 	}
 

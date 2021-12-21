@@ -14,6 +14,12 @@ type createUserRequest struct {
 	UserRequest `json:"user,omitempty"`
 }
 
-type getUserRequest struct {
+type updateUserRequest struct {
+	UserRequest `json:"user,omitempty"`
+}
+
+type userIdRequest struct {
 	Email string `json:"email,omitempty"`
 }
+
+type void struct{}
