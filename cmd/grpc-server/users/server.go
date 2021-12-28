@@ -10,6 +10,9 @@ import (
 
 	"github.com/neidersalgado/go-camp-grpc/cmd/grpc-server/pb"
 )
+const(
+	INVALIDDATA ="invalid input data create"
+)
 
 type grpcUserServer struct {
 	pb.UsersServer
@@ -52,7 +55,7 @@ func (srv *grpcUserServer) Create(ctx context.Context, user *pb.UserRequest) (*p
 	}
 	response, ok := grpcResponse.(*pb.Response)
 	if !ok {
-		return nil, errors.New("invalid input data create")
+		return nil, errors.New(INVALIDDATA)
 	}
 	return response, err
 }

@@ -7,15 +7,20 @@ import (
 	"github.com/neidersalgado/go-camp-grpc/cmd/grpc-server/pb"
 )
 
+const (
+	INVALIDENCODEDATA = "invalid input data encode"
+	ALREADYEXIST      = "user already exists"
+)
+
 func encodeCreateUserResponse(ctx context.Context, resp interface{}) (interface{}, error) {
 
 	respData, validCast := resp.(createUserResponse)
 	if !validCast {
-		return nil, errors.New("invalid input data encode")
+		return nil, errors.New(INVALIDENCODEDATA)
 	}
 
 	if respData.Error != nil {
-		if respData.Error.Error() == "user already exists" {
+		if respData.Error.Error() == ALREADYEXIST {
 			return &pb.Response{Code: pb.Response_FAILED}, nil
 		} else {
 			return &pb.Response{Code: pb.Response_INVALIDINPUT}, nil
@@ -30,7 +35,7 @@ func encodeGetUserResponse(ctx context.Context, resp interface{}) (interface{}, 
 	usrResponse, validCast := resp.(getUserResponse)
 
 	if !validCast {
-		return nil, errors.New("invalid input data to encode")
+		return nil, errors.New(INVALIDENCODEDATA)
 	}
 
 	return &pb.UserResponse{
@@ -46,7 +51,7 @@ func encodeGetUserResponse(ctx context.Context, resp interface{}) (interface{}, 
 func encodeResponse(ctx context.Context, resp interface{}) (interface{}, error) {
 	response, validCast := resp.(Response)
 	if !validCast {
-		return &pb.Response{Code: 400}, errors.New("invalid input data to encode")
+		return &pb.Response{Code: 400}, errors.New(INVALIDENCODEDATA)
 	}
 	return &pb.Response{Code: pb.Response_CodeResult(response.Code)}, nil
 }
@@ -54,7 +59,7 @@ func encodeResponse(ctx context.Context, resp interface{}) (interface{}, error) 
 func encodeGetAllResponse(ctx context.Context, resp interface{}) (interface{}, error) {
 	usrs, validCast := resp.(getAllUsersResponse)
 	if !validCast {
-		return &pb.Response{Code: 400}, errors.New("invalid input data to encode")
+		return &pb.Response{Code: 400}, errors.New(INVALIDENCODEDATA)
 	}
 
 	usersResponse := make([]*pb.UserResponse, len(usrs.Users))

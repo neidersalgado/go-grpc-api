@@ -11,7 +11,7 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/neidersalgado/go-camp-grpc/cmd/grpc-server/pb"
-	grpcImp "github.com/neidersalgado/go-camp-grpc/cmd/grpc-server/users"
+	grpcimp "github.com/neidersalgado/go-camp-grpc/cmd/grpc-server/users"
 	"github.com/neidersalgado/go-camp-grpc/pkg/repository"
 	"github.com/neidersalgado/go-camp-grpc/pkg/users"
 )
@@ -42,8 +42,8 @@ func main() {
 	}
 
 	userService := users.NewUserService(repository, logger)
-	endpoints := grpcImp.NewGrpcUserServerEndpoints(*userService)
-	grpcUserServer := grpcImp.NewGrpcUserServer(*endpoints, logger)
+	endpoints := grpcimp.NewGrpcUserServerEndpoints(*userService)
+	grpcUserServer := grpcimp.NewGrpcUserServer(*endpoints, logger)
 	baseServer := grpc.NewServer(grpc.UnaryInterceptor(kitgrpc.Interceptor))
 	pb.RegisterUsersServer(baseServer, grpcUserServer)
 

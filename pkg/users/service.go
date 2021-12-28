@@ -26,6 +26,14 @@ type Repository interface {
 	GetAll(ctx context.Context) ([]User, error)
 }
 
+const (
+	USERNOTFOUND = "User not found %+v"
+	AUTHFAILED   = "authentication failed"
+	ALREADYEXIST = "user with Email already exists"
+	NOTFOUND     = "user not found"
+	CANTUPDATE   = "cannot update the user"
+)
+
 type UserService struct {
 	repository Repository
 	logger     log.Logger
@@ -43,11 +51,11 @@ func (us *UserService) Authenticate(ctx context.Context, auth Auth) error {
 	usr, err := us.GetByEmail(ctx, auth.Mail)
 
 	if err != nil {
-		return errors.New(fmt.Sprintf("User not found %+v", auth.Mail))
+		return errors.New(fmt.Sprintf(USERNOTFOUND, auth.Mail))
 	}
 
 	if usr.PwdHash != auth.Hash {
-		return errors.New("authentication failed")
+		return errors.New(AUTHFAILED)
 	}
 
 	return nil
@@ -71,7 +79,7 @@ func (us *UserService) Create(ctx context.Context, user User) error {
 
 	if dbUser.UserId > 0 {
 		us.logger.Log("userService", "User Exist")
-		return errors.New("user with Email already exists")
+		return errors.New(ALREADYEXIST)
 	}
 	us.logger.Log("userService", "Creating User")
 	errCreate := us.repository.Create(ctx, user)
@@ -95,7 +103,7 @@ func (us *UserService) GetByEmail(ctx context.Context, email string) (User, erro
 	}
 
 	if dbUser.UserId == 0 {
-		return User{}, errors.New("user not found")
+		return User{}, errors.New(NOTFOUND)
 	}
 
 	return dbUser, nil
@@ -131,13 +139,13 @@ func (us *UserService) Update(ctx context.Context, user User) error {
 	}
 
 	if usrToUpdate.UserId == 0 {
-		return errors.New("user not found")
+		return errors.New(NOTFOUND)
 	}
 
 	user.UserId = usrToUpdate.UserId
 
 	if err := us.repository.Update(ctx, user); err != nil {
-		return errors.New("cannot update the user")
+		return errors.New(CANTUPDATE)
 	}
 
 	return nil
@@ -146,12 +154,12 @@ func (us *UserService) Update(ctx context.Context, user User) error {
 //Delete - removes a user
 func (us *UserService) Delete(ctx context.Context, email string) error {
 	userToDelete, err := us.repository.GetByEmail(ctx, email)
-
+	fmt.Printf("user : %+v \n", userToDelete)
 	if err != nil {
 		return err
 	}
-	if userToDelete.UserId == 0 {
-		return errors.New("user not found")
+	if userToDelete.UserId <= 0 {
+		return errors.New(NOTFOUND)
 	}
 
 	if errD := us.repository.Delete(ctx, email); errD != nil {

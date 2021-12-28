@@ -8,10 +8,14 @@ import (
 	domain "github.com/neidersalgado/go-camp-grpc/pkg/users"
 )
 
+const (
+	INVALIDADECODEDATA = "invalid input data decode"
+)
+
 func decodeCreateUserRequest(ctx context.Context, grpcReq interface{}) (interface{}, error) {
 	reqData, validCast := grpcReq.(*pb.UserRequest)
 	if !validCast {
-		return nil, errors.New("invalid input data decode")
+		return nil, errors.New(INVALIDADECODEDATA)
 	}
 	usr := UserRequest{
 		UserId:                reqData.UserId,
@@ -28,7 +32,7 @@ func decodeCreateUserRequest(ctx context.Context, grpcReq interface{}) (interfac
 func decodeUserIdRequest(ctx context.Context, grpcReq interface{}) (interface{}, error) {
 	reqData, validCast := grpcReq.(*pb.UserIDRequest)
 	if !validCast {
-		return nil, errors.New("invalid input data decode")
+		return nil, errors.New(INVALIDADECODEDATA)
 	}
 
 	return userIdRequest{Email: reqData.Email}, nil
@@ -38,7 +42,7 @@ func decodeAuthUserRequest(ctx context.Context, grpcReq interface{}) (interface{
 	reqData, validCast := grpcReq.(*pb.AuthRequest)
 
 	if !validCast {
-		return domain.Auth{}, errors.New("invalid input data decode")
+		return domain.Auth{}, errors.New(INVALIDADECODEDATA)
 	}
 	return domain.Auth{Mail: reqData.Name, Hash: reqData.Hash}, nil
 }
@@ -47,7 +51,7 @@ func decodeGetAllRequest(ctx context.Context, grpcReq interface{}) (interface{},
 	_, validCast := grpcReq.(*pb.Void)
 
 	if !validCast {
-		return void{}, errors.New("invalid input data decode")
+		return void{}, errors.New(INVALIDADECODEDATA)
 	}
 
 	return void{}, nil
@@ -57,7 +61,7 @@ func decodeUpdateUserRequest(ctx context.Context, grpcReq interface{}) (interfac
 	updateData, validCast := grpcReq.(*pb.UserRequest)
 
 	if !validCast {
-		return nil, errors.New("invalid input data decode")
+		return nil, errors.New(INVALIDADECODEDATA)
 	}
 	usr := UserRequest{
 		UserId:                updateData.UserId,
