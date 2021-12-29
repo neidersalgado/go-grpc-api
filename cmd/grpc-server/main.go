@@ -10,10 +10,10 @@ import (
 	kitgrpc "github.com/go-kit/kit/transport/grpc"
 	"google.golang.org/grpc"
 
-	"github.com/neidersalgado/go-camp-grpc/cmd/grpc-server/pb"
-	grpcimp "github.com/neidersalgado/go-camp-grpc/cmd/grpc-server/users"
-	"github.com/neidersalgado/go-camp-grpc/pkg/repository"
-	"github.com/neidersalgado/go-camp-grpc/pkg/users"
+	"github.com/neidersalgado/go-grpc-api/cmd/grpc-server/pb"
+	grpcimp "github.com/neidersalgado/go-grpc-api/cmd/grpc-server/users"
+	"github.com/neidersalgado/go-grpc-api/pkg/repository"
+	"github.com/neidersalgado/go-grpc-api/pkg/users"
 )
 
 func main() {

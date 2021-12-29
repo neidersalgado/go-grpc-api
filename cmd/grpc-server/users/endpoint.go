@@ -7,8 +7,7 @@ import (
 
 	"github.com/go-kit/kit/endpoint"
 
-	"github.com/neidersalgado/go-camp-grpc/pkg/users"
-	domain "github.com/neidersalgado/go-camp-grpc/pkg/users"
+	domain "github.com/neidersalgado/go-grpc-api/pkg/users"
 )
 
 const (
@@ -61,7 +60,7 @@ func MakeCreateUserEndpoint(s domain.UserService) endpoint.Endpoint {
 		if !validCast {
 			return createUserResponse{}, errors.New(fmt.Sprintf(invalidData, ": Create"))
 		}
-		usr := users.User{
+		usr := domain.User{
 			UserId:                requestData.UserId,
 			Email:                 requestData.Email,
 			PwdHash:               requestData.PwdHash,
@@ -132,7 +131,7 @@ func MakeUpdateUserEndpoint(s domain.UserService) endpoint.Endpoint {
 			return Response{Code: 400}, errors.New(fmt.Sprintf(invalidData, "Update"))
 		}
 
-		usr := users.User{
+		usr := domain.User{
 			UserId:                requestData.UserId,
 			Email:                 requestData.Email,
 			PwdHash:               requestData.PwdHash,

@@ -1,4 +1,4 @@
-module github.com/neidersalgado/go-camp-grpc
+module github.com/neidersalgado/go-grpc-api
 
 go 1.13
 
@@ -8,6 +8,7 @@ require (
 	github.com/go-kit/log v0.2.0
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-sql-driver/mysql v1.6.0
+	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/stretchr/testify v1.7.0
 	golang.org/x/sys v0.0.0-20211124211545-fe61309f8881 // indirect

@@ -1,4 +1,6 @@
-CREATE TABLE user (
+USE users
+
+CREATE TABLE IF NOT EXIST user (
 	Id int not null AUTO_INCREMENT,
 	email varchar(60) not null,
     name VARCHAR(25) not null,
@@ -8,11 +10,3 @@ CREATE TABLE user (
 	PRIMARY KEY (Id)
 );
 
-CREATE TABLE parent (
-	Id INT NOT NULL AUTO_INCREMENT,
-	parent int,
-	son int,
-	PRIMARY KEY (Id),
-    FOREIGN KEY (parent) REFERENCES user(Id),
-    FOREIGN KEY (son) REFERENCES user(Id)
-);

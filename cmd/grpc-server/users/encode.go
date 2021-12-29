@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/neidersalgado/go-camp-grpc/cmd/grpc-server/pb"
+	"github.com/neidersalgado/go-grpc-api/cmd/grpc-server/users/pb"
 )
 
 const (

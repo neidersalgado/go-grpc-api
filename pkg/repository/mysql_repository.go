@@ -8,7 +8,7 @@ import (
 	"github.com/caarlos0/env/v6"
 	_ "github.com/go-sql-driver/mysql"
 
-	"github.com/neidersalgado/go-camp-grpc/pkg/users"
+	"github.com/neidersalgado/go-grpc-api/pkg/users"
 )
 
 const (

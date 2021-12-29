@@ -8,10 +8,11 @@ import (
 	"github.com/go-kit/kit/transport"
 	"github.com/go-kit/kit/transport/grpc"
 
-	"github.com/neidersalgado/go-camp-grpc/cmd/grpc-server/pb"
+	"github.com/neidersalgado/go-grpc-api/cmd/grpc-server/users/pb"
 )
-const(
-	INVALIDDATA ="invalid input data create"
+
+const (
+	INVALIDDATA = "invalid input data create"
 )
 
 type grpcUserServer struct {

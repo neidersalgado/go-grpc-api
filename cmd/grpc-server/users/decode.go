@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"github.com/neidersalgado/go-camp-grpc/cmd/grpc-server/pb"
-	domain "github.com/neidersalgado/go-camp-grpc/pkg/users"
+	"github.com/neidersalgado/go-grpc-api/cmd/grpc-server/users/pb"
+	domain "github.com/neidersalgado/go-grpc-api/pkg/users"
 )
 
 const (

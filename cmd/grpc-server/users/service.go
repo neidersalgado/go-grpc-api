@@ -3,8 +3,8 @@ package grpc
 import (
 	"context"
 
-	"github.com/neidersalgado/go-camp-grpc/cmd/grpc-server/pb"
-	"github.com/neidersalgado/go-camp-grpc/pkg/users"
+	"github.com/neidersalgado/go-grpc-api/cmd/grpc-server/users/pb"
+	"github.com/neidersalgado/go-grpc-api/pkg/users"
 )
 
 type GrpcService struct {

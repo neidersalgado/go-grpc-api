@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/neidersalgado/go-camp-grpc/pkg/users"
+	"github.com/neidersalgado/go-grpc-api/pkg/users"
 )
 
 var repository *MySQLUserRepository

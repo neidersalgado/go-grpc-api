@@ -1,9 +1,6 @@
 package transform
 
-import (
-	"github.com/neidersalgado/go-camp-grpc/cmd/grpc-server/pb"
-	domain "github.com/neidersalgado/go-camp-grpc/pkg/users"
-)
+import "github.com/neidersalgado/go-grpc-api/cmd/grpc-server/users/pb"
 
 func FromRequestToDomainS(userToMap pb.UserRequest) domain.User {
 	return domain.User{
