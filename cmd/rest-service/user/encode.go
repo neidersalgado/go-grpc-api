@@ -3,12 +3,21 @@ package user
 import (
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
+	"log"
 	"net/http"
 
 	apiErrors "github.com/neidersalgado/go-grpc-api/pkg/errors"
 )
 
 func encodeCreateResponse(_ context.Context, w http.ResponseWriter, response interface{}) error {
+	reqResp, validCast := response.(CreateUserResponse)
+	if !validCast {
+		log.Fatalf(fmt.Sprintf("req %+v", response))
+		return apiErrors.ErrInternal{Err: errors.New("cant bind response")}
+	}
+	fmt.Printf("response create %+v\n ", reqResp)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 	return json.NewEncoder(w).Encode(response)
@@ -62,6 +71,26 @@ func encodeDeleteResponse(_ context.Context, w http.ResponseWriter, response int
 	w.WriteHeader(http.StatusOK)
 	resp.Msg = "Deleted Ok"
 
+	return json.NewEncoder(w).Encode(resp)
+}
+
+func encodeUpdateResponse(_ context.Context, w http.ResponseWriter, response interface{}) error {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	resp, validCast := response.(UpdateUserResponse)
+
+	if !validCast {
+		fmt.Printf("cast error")
+		w.WriteHeader(http.StatusBadRequest)
+		resp.Err = apiErrors.NewErrBadRequest("delete response could not be read")
+		return json.NewEncoder(w).Encode(resp)
+	}
+
+	if resp.Err != nil {
+		fmt.Printf("respo error %+v", resp)
+		w.WriteHeader(http.StatusBadRequest)
+		return json.NewEncoder(w).Encode(resp)
+	}
+	w.WriteHeader(http.StatusOK)
 	return json.NewEncoder(w).Encode(resp)
 }
 

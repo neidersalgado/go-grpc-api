@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/caarlos0/env/v6"
+	"github.com/go-kit/kit/log"
 	_ "github.com/go-sql-driver/mysql"
 
 	"github.com/neidersalgado/go-grpc-api/pkg/users"
@@ -21,14 +22,15 @@ const (
 )
 
 type config struct {
-	User      string `env:"MYSQL_USER" envDefault:"root"`
-	Password  string `env:"MYSQL_PASSWORD" envDefault:"secret"`
-	Port      string `env:"MYSQL_PORT" envDefault:":33060"`
+	User     string `env:"MYSQL_USER" envDefault:"root"`
+	Password string `env:"MYSQL_PASSWORD" envDefault:"BulkD3v_mysql"`
+	Port     string `env:"MYSQL_PORT" envDefault:":3306"`
+	//Host      string `env:"MYSQL_HOST" envDefault:"172.19.0.2"`
 	Host      string `env:"MYSQL_HOST" envDefault:"127.0.0.1"`
 	DefaultDB string `env:"MYSQL_DEFAULTDB" envDefault:"users"`
 }
 
-func initMySQLRepository() (*sql.DB, error) {
+func initMySQLRepository(log log.Logger) (*sql.DB, error) {
 
 	cfg := config{}
 
@@ -38,36 +40,39 @@ func initMySQLRepository() (*sql.DB, error) {
 
 	connectionString := fmt.Sprintf("%s:%s@tcp(%s%s)/%s", cfg.User, cfg.Password, cfg.Host, cfg.Port, cfg.DefaultDB)
 	db, err := sql.Open("mysql", connectionString)
-
+	log.Log("Connection String", connectionString)
 	if err != nil {
+		log.Log("Connection", "error", err.Error())
 		return nil, err
 	}
 
 	if err := db.Ping(); err != nil {
+		log.Log("Connection", "error", err.Error())
 		return nil, err
 	}
-
 	return db, nil
 }
 
 type MySQLUserRepository struct {
-	db *sql.DB
+	db     *sql.DB
+	logger log.Logger
 }
 
-func NewMySQLUserRepository() (*MySQLUserRepository, error) {
-	db, err := initMySQLRepository()
-
+func NewMySQLUserRepository(logger log.Logger) (*MySQLUserRepository, error) {
+	db, err := initMySQLRepository(logger)
 	if err != nil {
+		logger.Log("Connection", "Cant connect with bd")
 		return nil, err
 	}
 	return &MySQLUserRepository{
-		db: db,
+		db:     db,
+		logger: logger,
 	}, nil
 }
 
 func (r *MySQLUserRepository) Create(ctx context.Context, user users.User) error {
 	stmtSaveUser, err := r.db.Prepare(QUERYSAVEUSER)
-
+	r.logger.Log("repository", fmt.Sprintf("creating user %+v", user))
 	if err != nil {
 		return fmt.Errorf(
 			fmt.Sprintf("Connetion Error, Couldn't save User With ID: %s in database, Error: %v", user.Email, err.Error()),

@@ -33,7 +33,7 @@ func MakeHTTPHandler(s ProxyRepository, logger log.Logger) http.Handler {
 	r.Methods(http.MethodGet).Path(GetUser).Handler(httptransport.NewServer(
 		e.GetUserEndpoint,
 		decoderEmailRequest,
-		encodeCreateResponse,
+		encodeResponse,
 		options...,
 	))
 	r.Methods(http.MethodDelete).Path(DeleteUser).Handler(httptransport.NewServer(
@@ -45,7 +45,7 @@ func MakeHTTPHandler(s ProxyRepository, logger log.Logger) http.Handler {
 	r.Methods(http.MethodPut).Path(UpdateUser).Handler(httptransport.NewServer(
 		e.UpdateUserEndpoint,
 		decodeUpdateRequest,
-		encodeDeleteResponse,
+		encodeUpdateResponse,
 		options...,
 	))
 

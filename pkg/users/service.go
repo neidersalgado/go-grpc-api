@@ -95,14 +95,15 @@ func (us *UserService) Create(ctx context.Context, user User) error {
 
 //GetByEmail - retrieves the information of a user based on the email
 func (us *UserService) GetByEmail(ctx context.Context, email string) (User, error) {
-
+	us.logger.Log("userService", "GetByEmail")
 	dbUser, err := us.repository.GetByEmail(ctx, email)
 
 	if err != nil {
 		return User{}, err
 	}
-
+	us.logger.Log("userService", fmt.Sprintf("user found: %+v", dbUser))
 	if dbUser.UserId == 0 {
+		us.logger.Log("userService", "user not exist")
 		return User{}, errors.New(NOTFOUND)
 	}
 

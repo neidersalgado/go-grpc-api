@@ -4,6 +4,7 @@ package pb
 
 import (
 	context "context"
+
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -56,6 +57,7 @@ func (c *usersClient) Get(ctx context.Context, in *UserIDRequest, opts ...grpc.C
 	out := new(UserResponse)
 	err := c.cc.Invoke(ctx, "/user.Users/Get", in, out, opts...)
 	if err != nil {
+		
 		return nil, err
 	}
 	return out, nil

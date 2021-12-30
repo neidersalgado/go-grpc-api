@@ -10,8 +10,8 @@ import (
 	kitgrpc "github.com/go-kit/kit/transport/grpc"
 	"google.golang.org/grpc"
 
-	"github.com/neidersalgado/go-grpc-api/cmd/grpc-server/pb"
 	grpcimp "github.com/neidersalgado/go-grpc-api/cmd/grpc-server/users"
+	"github.com/neidersalgado/go-grpc-api/cmd/grpc-server/users/pb"
 	"github.com/neidersalgado/go-grpc-api/pkg/repository"
 	"github.com/neidersalgado/go-grpc-api/pkg/users"
 )
@@ -30,15 +30,16 @@ func main() {
 		fmt.Printf("%+v\n", err)
 	}
 
+	//ls, err := net.Listen("tcp", fmt.Sprintf("172.19.0.3:%d", cfg.Port))
 	ls, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.Port))
 	if err != nil {
 		panic(fmt.Sprintf("Could not create the listener %v", err))
 	}
 
-	repository, err := repository.NewMySQLUserRepository()
+	repository, err := repository.NewMySQLUserRepository(logger)
 
 	if err != nil {
-		panic(fmt.Sprintf("mysql connection failed: %s", err))
+		panic(fmt.Sprintf("mysql connection failed: %s", err.Error()))
 	}
 
 	userService := users.NewUserService(repository, logger)
@@ -50,6 +51,7 @@ func main() {
 	if err := baseServer.Serve(ls); err != nil {
 		panic(fmt.Sprintf("failed to serve: %s", err))
 	}
+	logger.Log("transport", "grpc", "status", "serve")
 }
 
 type config struct {

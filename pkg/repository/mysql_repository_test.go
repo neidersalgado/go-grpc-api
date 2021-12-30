@@ -5,6 +5,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/go-kit/log"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/neidersalgado/go-grpc-api/pkg/users"
@@ -13,8 +14,14 @@ import (
 var repository *MySQLUserRepository
 
 func TestMain(m *testing.M) {
+	var logger log.Logger
+	{
+		logger = log.NewLogfmtLogger(os.Stderr)
+		logger = log.With(logger, "ts", log.DefaultTimestampUTC)
+		logger = log.With(logger, "caller", log.DefaultCaller)
+	}
 	var err error
-	repository, err = NewMySQLUserRepository()
+	repository, err = NewMySQLUserRepository(logger)
 
 	if err != nil {
 		panic(err)

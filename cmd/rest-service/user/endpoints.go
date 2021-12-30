@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/go-kit/kit/endpoint"
 
@@ -34,7 +35,7 @@ func makeCreateUserEndpoint(s ProxyRepository) endpoint.Endpoint {
 
 		reqData, validCast := request.(UserRequest)
 		if !validCast {
-			return nil, errors.New("invalid input data")
+			return CreateUserResponse{}, errors.New("invalid input data")
 		}
 		usr := entities.User{
 			UserID:                reqData.UserID,
@@ -98,7 +99,13 @@ func makeUpdateUserEndpoint(s ProxyRepository) endpoint.Endpoint {
 			AdditionalInformation: reqData.AdditionalInformation,
 		}
 		err = s.Update(ctx, usr)
-		return UpdateUserResponse{Err: err}, nil
+
+		if err != nil {
+			fmt.Printf("Error: %+v", err.Error())
+			return UpdateUserResponse{Err: err}, err
+		}
+		
+		return UpdateUserResponse{}, nil
 	}
 }
 
