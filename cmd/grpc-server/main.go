@@ -30,8 +30,8 @@ func main() {
 		fmt.Printf("%+v\n", err)
 	}
 
-	//ls, err := net.Listen("tcp", fmt.Sprintf("172.19.0.3:%d", cfg.Port))
-	ls, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.Port))
+	ls, err := net.Listen("tcp", fmt.Sprintf("172.19.0.3:%d", cfg.Port))
+	//ls, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.Port))
 	if err != nil {
 		panic(fmt.Sprintf("Could not create the listener %v", err))
 	}

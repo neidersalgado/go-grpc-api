@@ -19,8 +19,8 @@ import (
 
 type config struct {
 	Port int    `env:"GRPCSERVICE_PORT" envDefault:"9000"`
-	Host string `env:"GRPCSERVICE_HOST" envDefault:"127.0.0.1"`
-	//Host string `env:"GRPCSERVICE_HOST" envDefault:"172.19.0.3"`
+	//Host string `env:"GRPCSERVICE_HOST" envDefault:"127.0.0.1"`
+	Host string `env:"GRPCSERVICE_HOST" envDefault:"172.19.0.3"`
 }
 
 type ProxyRepository struct {

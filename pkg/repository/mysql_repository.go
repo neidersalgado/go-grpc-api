@@ -25,8 +25,8 @@ type config struct {
 	User     string `env:"MYSQL_USER" envDefault:"root"`
 	Password string `env:"MYSQL_PASSWORD" envDefault:"BulkD3v_mysql"`
 	Port     string `env:"MYSQL_PORT" envDefault:":3306"`
-	//Host      string `env:"MYSQL_HOST" envDefault:"172.19.0.2"`
-	Host      string `env:"MYSQL_HOST" envDefault:"127.0.0.1"`
+	Host     string `env:"MYSQL_HOST" envDefault:"172.19.0.2"`
+	//Host      string `env:"MYSQL_HOST" envDefault:"127.0.0.1"`
 	DefaultDB string `env:"MYSQL_DEFAULTDB" envDefault:"users"`
 }
 
