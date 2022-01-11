@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/go-kit/kit/endpoint"
+	"github.com/go-kit/kit/log"
 
 	"github.com/neidersalgado/go-grpc-api/pkg/entities"
 	errorApi "github.com/neidersalgado/go-grpc-api/pkg/errors"
@@ -20,17 +21,18 @@ type Endpoints struct {
 	DeleteUserEndpoint  endpoint.Endpoint
 }
 
-func MakeServerEndpoints(s ProxyRepository) Endpoints {
+func MakeServerEndpoints(s ProxyRepository, logger log.Logger) Endpoints {
 	return Endpoints{
-		Authenticate:       makeAuthenticateEndpoint(s),
-		CreateUserEndpoint: makeCreateUserEndpoint(s),
-		GetUserEndpoint:    makeGetUserEndpoint(s),
-		DeleteUserEndpoint: makeDeleteUserEndpoint(s),
-		UpdateUserEndpoint: makeUpdateUserEndpoint(s),
+		Authenticate:        makeAuthenticateEndpoint(s, logger),
+		CreateUserEndpoint:  makeCreateUserEndpoint(s, logger),
+		GetUserEndpoint:     makeGetUserEndpoint(s, logger),
+		DeleteUserEndpoint:  makeDeleteUserEndpoint(s, logger),
+		UpdateUserEndpoint:  makeUpdateUserEndpoint(s, logger),
+		GetAllUsersEndpoint: makeGetAlluserEndpoint(s, logger),
 	}
 }
 
-func makeCreateUserEndpoint(s ProxyRepository) endpoint.Endpoint {
+func makeCreateUserEndpoint(s ProxyRepository, logger log.Logger) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 
 		reqData, validCast := request.(UserRequest)
@@ -49,7 +51,7 @@ func makeCreateUserEndpoint(s ProxyRepository) endpoint.Endpoint {
 	}
 }
 
-func makeGetUserEndpoint(s ProxyRepository) endpoint.Endpoint {
+func makeGetUserEndpoint(s ProxyRepository, logger log.Logger) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req, ok := request.(getUserRequest)
 		if !ok {
@@ -69,7 +71,18 @@ func makeGetUserEndpoint(s ProxyRepository) endpoint.Endpoint {
 	}
 }
 
-func makeDeleteUserEndpoint(s ProxyRepository) endpoint.Endpoint {
+func makeGetAlluserEndpoint(s ProxyRepository, logger log.Logger) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		_, err := s.List(ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		return getAllResponse{Users: []UserResponse{}}, nil
+	}
+}
+
+func makeDeleteUserEndpoint(s ProxyRepository, logger log.Logger) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req, ok := request.(getUserRequest)
 		if !ok {
@@ -84,7 +97,7 @@ func makeDeleteUserEndpoint(s ProxyRepository) endpoint.Endpoint {
 	}
 }
 
-func makeUpdateUserEndpoint(s ProxyRepository) endpoint.Endpoint {
+func makeUpdateUserEndpoint(s ProxyRepository, logger log.Logger) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 
 		reqData, validCast := request.(UserRequest)
@@ -104,12 +117,12 @@ func makeUpdateUserEndpoint(s ProxyRepository) endpoint.Endpoint {
 			fmt.Printf("Error: %+v", err.Error())
 			return UpdateUserResponse{Err: err}, err
 		}
-		
+
 		return UpdateUserResponse{}, nil
 	}
 }
 
-func makeAuthenticateEndpoint(s ProxyRepository) endpoint.Endpoint {
+func makeAuthenticateEndpoint(s ProxyRepository, logger log.Logger) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req, ok := request.(authRequest)
 		if !ok {

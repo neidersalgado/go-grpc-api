@@ -19,8 +19,7 @@ import (
 
 type config struct {
 	Port int    `env:"GRPCSERVICE_PORT" envDefault:"9000"`
-	//Host string `env:"GRPCSERVICE_HOST" envDefault:"127.0.0.1"`
-	Host string `env:"GRPCSERVICE_HOST" envDefault:"172.19.0.3"`
+	Host string `env:"GRPCSERVICE_HOST" envDefault:"127.0.0.1"`
 }
 
 type ProxyRepository struct {
@@ -57,7 +56,7 @@ func (up ProxyRepository) Create(user entities.User) error {
 
 	if result.GetCode() != http.StatusOK {
 		up.logger.Log("client", "create", "code", fmt.Sprintf("status: %+v", result.Code))
-		return errors.New(fmt.Sprintf("Error Creating User  error: %v, response code: %v", errorFromCall.Error(), result.Code))
+		return errors.New(fmt.Sprintf(" response code: %v", result.Code))
 	}
 
 	return nil

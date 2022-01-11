@@ -25,7 +25,7 @@ type grpcUserEndpoints struct {
 	DeleteUserEndpoint       endpoint.Endpoint
 }
 
-func NewGrpcUserServerEndpoints(s domain.UserService) *grpcUserEndpoints {
+func NewGrpcUserServerEndpoints(s domain.Service) *grpcUserEndpoints {
 	return &grpcUserEndpoints{
 		AuthenticateUserEndpoint: MakeAuthenticateUserEndpoint(s),
 		CreateUserEndpoint:       MakeCreateUserEndpoint(s),
@@ -36,7 +36,7 @@ func NewGrpcUserServerEndpoints(s domain.UserService) *grpcUserEndpoints {
 	}
 }
 
-func MakeAuthenticateUserEndpoint(s domain.UserService) endpoint.Endpoint {
+func MakeAuthenticateUserEndpoint(s domain.Service) endpoint.Endpoint {
 
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		requestData, validCast := request.(domain.Auth)
@@ -53,7 +53,7 @@ func MakeAuthenticateUserEndpoint(s domain.UserService) endpoint.Endpoint {
 	}
 }
 
-func MakeCreateUserEndpoint(s domain.UserService) endpoint.Endpoint {
+func MakeCreateUserEndpoint(s domain.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		requestData, validCast := request.(createUserRequest)
 
@@ -78,7 +78,7 @@ func MakeCreateUserEndpoint(s domain.UserService) endpoint.Endpoint {
 	}
 }
 
-func MakeGetUserEndpoint(s domain.UserService) endpoint.Endpoint {
+func MakeGetUserEndpoint(s domain.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		requestData, validCast := request.(userIdRequest)
 
@@ -101,7 +101,7 @@ func MakeGetUserEndpoint(s domain.UserService) endpoint.Endpoint {
 	}
 }
 
-func MakeGetAllEndpoint(s domain.UserService) endpoint.Endpoint {
+func MakeGetAllEndpoint(s domain.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		usersData, err := s.GetAll(ctx)
 
@@ -123,7 +123,7 @@ func MakeGetAllEndpoint(s domain.UserService) endpoint.Endpoint {
 	}
 }
 
-func MakeUpdateUserEndpoint(s domain.UserService) endpoint.Endpoint {
+func MakeUpdateUserEndpoint(s domain.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		requestData, validCast := request.(updateUserRequest)
 		fmt.Printf("cast: %+v", validCast)
@@ -147,7 +147,7 @@ func MakeUpdateUserEndpoint(s domain.UserService) endpoint.Endpoint {
 	}
 }
 
-func MakeDeleteUserEndpoint(s domain.UserService) endpoint.Endpoint {
+func MakeDeleteUserEndpoint(s domain.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		requestData, validCast := request.(userIdRequest)
 

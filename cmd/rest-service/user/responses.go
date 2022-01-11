@@ -25,3 +25,7 @@ type AuthResponse struct {
 type UpdateUserResponse struct {
 	Err error `json:"err,omitempty"`
 }
+
+type getAllResponse struct {
+	Users []UserResponse `json:"users,omitempty"`
+}

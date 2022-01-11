@@ -7,7 +7,8 @@ services:
       context: . 
       target: grpcserver
     environment:
-      - GRPCSERVICE_PORT=9000      
+      - GRPCSERVICE_PORT=9000
+      - GRPCSERVICE_HOST=grpc      
       - MYSQL_HOST=mysql
       - MYSQL_PORT=:3306    
       - USERS_REPOSITORY=mysql
@@ -19,7 +20,8 @@ services:
     networks:
       - internal
     depends_on:
-      - mysql
+            mysql:
+                condition: service_healthy
   rest:
     container_name: restservdev
     build:
@@ -41,6 +43,10 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=BulkD3v_mysql
       - MYSQL_DATABASE=users
+    healthcheck:
+          test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+          timeout: 20s
+          retries: 10
     ports:
       - "3306:3306"
     volumes:

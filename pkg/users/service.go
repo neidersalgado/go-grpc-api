@@ -12,7 +12,7 @@ import (
 type Service interface {
 	Authenticate(ctx context.Context, auth Auth) error
 	Create(ctx context.Context, user User) error
-	Get(ctx context.Context, email string) (User, error)
+	GetByEmail(ctx context.Context, email string) (User, error)
 	Update(ctx context.Context, user User) error
 	Delete(ctx context.Context, email string) error
 	GetAll(context.Context) ([]User, error)

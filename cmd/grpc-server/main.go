@@ -30,8 +30,7 @@ func main() {
 		fmt.Printf("%+v\n", err)
 	}
 
-	ls, err := net.Listen("tcp", fmt.Sprintf("172.19.0.3:%d", cfg.Port))
-	//ls, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.Port))
+	ls, err := net.Listen("tcp", fmt.Sprintf("%s:%d", cfg.Host, cfg.Port))
 	if err != nil {
 		panic(fmt.Sprintf("Could not create the listener %v", err))
 	}
@@ -43,7 +42,7 @@ func main() {
 	}
 
 	userService := users.NewUserService(repository, logger)
-	endpoints := grpcimp.NewGrpcUserServerEndpoints(*userService)
+	endpoints := grpcimp.NewGrpcUserServerEndpoints(userService)
 	grpcUserServer := grpcimp.NewGrpcUserServer(*endpoints, logger)
 	baseServer := grpc.NewServer(grpc.UnaryInterceptor(kitgrpc.Interceptor))
 	pb.RegisterUsersServer(baseServer, grpcUserServer)
@@ -55,5 +54,6 @@ func main() {
 }
 
 type config struct {
-	Port int `env:"GRPCSERVICE_PORT" envDefault:"9000"`
+	Port int    `env:"GRPCSERVICE_PORT" envDefault:"9000"`
+	Host string `env:"GRPCSERVICE_HOST" envDefault:"127.0.0.1"`
 }

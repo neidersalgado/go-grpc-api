@@ -17,7 +17,7 @@ var (
 // MakeHTTPHandler set up services in handlers
 func MakeHTTPHandler(s ProxyRepository, logger log.Logger) http.Handler {
 	r := mux.NewRouter()
-	e := MakeServerEndpoints(s)
+	e := MakeServerEndpoints(s, logger)
 	options := []httptransport.ServerOption{
 		httptransport.ServerErrorHandler(transport.NewLogErrorHandler(logger)),
 		httptransport.ServerErrorEncoder(encodeError),
@@ -25,7 +25,7 @@ func MakeHTTPHandler(s ProxyRepository, logger log.Logger) http.Handler {
 
 	r.Methods(http.MethodPost).Path(PostUser).Handler(httptransport.NewServer(
 		e.CreateUserEndpoint,
-		decodeCreateRequest,
+		decodeCreateRequest(logger),
 		encodeCreateResponse,
 		options...,
 	))
