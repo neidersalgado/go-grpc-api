@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/neidersalgado/go-grpc-api/cmd/grpc-server/users/pb"
+	"github.com/neidersalgado/go-grpc-api/cmd/grpc-server/users/proto"
 	domain "github.com/neidersalgado/go-grpc-api/pkg/users"
 )
 
@@ -13,12 +13,11 @@ const (
 )
 
 func decodeCreateUserRequest(ctx context.Context, grpcReq interface{}) (interface{}, error) {
-	reqData, validCast := grpcReq.(*pb.UserRequest)
+	reqData, validCast := grpcReq.(*proto.UserRequest)
 	if !validCast {
 		return nil, errors.New(INVALIDADECODEDATA)
 	}
 	usr := UserRequest{
-		UserId:                reqData.UserId,
 		PwdHash:               reqData.PwdHash,
 		Email:                 reqData.Email,
 		Name:                  reqData.Name,
@@ -30,7 +29,7 @@ func decodeCreateUserRequest(ctx context.Context, grpcReq interface{}) (interfac
 }
 
 func decodeUserIdRequest(ctx context.Context, grpcReq interface{}) (interface{}, error) {
-	reqData, validCast := grpcReq.(*pb.UserIDRequest)
+	reqData, validCast := grpcReq.(*proto.UserIDRequest)
 	if !validCast {
 		return nil, errors.New(INVALIDADECODEDATA)
 	}
@@ -39,7 +38,7 @@ func decodeUserIdRequest(ctx context.Context, grpcReq interface{}) (interface{},
 }
 
 func decodeAuthUserRequest(ctx context.Context, grpcReq interface{}) (interface{}, error) {
-	reqData, validCast := grpcReq.(*pb.AuthRequest)
+	reqData, validCast := grpcReq.(*proto.AuthRequest)
 
 	if !validCast {
 		return domain.Auth{}, errors.New(INVALIDADECODEDATA)
@@ -48,7 +47,7 @@ func decodeAuthUserRequest(ctx context.Context, grpcReq interface{}) (interface{
 }
 
 func decodeGetAllRequest(ctx context.Context, grpcReq interface{}) (interface{}, error) {
-	_, validCast := grpcReq.(*pb.Void)
+	_, validCast := grpcReq.(*proto.Void)
 
 	if !validCast {
 		return void{}, errors.New(INVALIDADECODEDATA)
@@ -58,13 +57,12 @@ func decodeGetAllRequest(ctx context.Context, grpcReq interface{}) (interface{},
 }
 
 func decodeUpdateUserRequest(ctx context.Context, grpcReq interface{}) (interface{}, error) {
-	updateData, validCast := grpcReq.(*pb.UserRequest)
+	updateData, validCast := grpcReq.(*proto.UserRequest)
 
 	if !validCast {
 		return nil, errors.New(INVALIDADECODEDATA)
 	}
 	usr := UserRequest{
-		UserId:                updateData.UserId,
 		PwdHash:               updateData.PwdHash,
 		Email:                 updateData.Email,
 		Name:                  updateData.Name,

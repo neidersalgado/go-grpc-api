@@ -8,7 +8,7 @@ import (
 	"github.com/go-kit/kit/transport"
 	"github.com/go-kit/kit/transport/grpc"
 
-	"github.com/neidersalgado/go-grpc-api/cmd/grpc-server/users/pb"
+	pb "github.com/neidersalgado/go-grpc-api/cmd/grpc-server/users/proto"
 )
 
 const (

@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/neidersalgado/go-grpc-api/cmd/grpc-server/users/pb"
+	pb "github.com/neidersalgado/go-grpc-api/cmd/grpc-server/users/proto"
 )
 
 const (
@@ -39,7 +39,6 @@ func encodeGetUserResponse(ctx context.Context, resp interface{}) (interface{}, 
 	}
 
 	return &pb.UserResponse{
-		UserId:                usrResponse.UserId,
 		PwdHash:               usrResponse.PwdHash,
 		Email:                 usrResponse.Email,
 		Name:                  usrResponse.Name,
@@ -66,7 +65,6 @@ func encodeGetAllResponse(ctx context.Context, resp interface{}) (interface{}, e
 
 	for _, usr := range usrs.Users {
 		userPb := pb.UserResponse{
-			UserId:                usr.UserId,
 			PwdHash:               usr.PwdHash,
 			Email:                 usr.Email,
 			Name:                  usr.Name,

@@ -1,0 +1,86 @@
+syntax = "proto3";
+package user;
+option go_package = ".;proto";
+
+import "google/api/annotations.proto";
+
+message UserRequest{
+    string pwd_hash = 2;
+    string email = 3;
+    string name =4;
+    int32 age = 5;
+    string additional_information = 6;
+}
+
+message UserResponse{
+    string pwd_hash = 2;
+    string email = 3;
+    string name =4;
+    int32 age = 5;
+    string additional_information = 6;
+}
+
+message UserColletionResponse{
+    repeated UserResponse users = 1;
+}
+
+message void{}
+
+message Response{
+    enum CodeResult{
+        UNKNOW = 0;
+        OK=1;
+        FAILED = 2;
+        INVALIDINPUT = 3;
+    }
+    enum RequestType{
+        CREATE = 0;
+        UPDATE = 1;
+        DELETE = 2;
+    }
+
+    CodeResult code = 1;
+}
+
+message AuthRequest{
+    string name =1;
+    string hash = 2;
+}
+
+message UserIDRequest {
+    string email = 1;
+}
+
+service Users {
+    rpc Authenticate(AuthRequest) returns(Response) {
+        option (google.api.http) = {
+            post: "/auth"
+            body: "*"
+        };
+    }
+    rpc Create(UserRequest) returns(Response) {
+        option (google.api.http) = {
+            post: "/user"
+            body: "*"
+        };
+    }
+    rpc Get(UserIDRequest) returns(UserResponse) {
+        option (google.api.http) = {
+            get: "/user/{email}"
+        };
+    }
+    rpc Update(UserRequest) returns(Response) {
+        option (google.api.http) = {
+        };
+    }
+    rpc Delete(UserIDRequest) returns(Response) {
+        option (google.api.http) = {
+            delete: "/user/{email}"
+        };
+    }
+    rpc GetAll(void) returns (UserColletionResponse){
+        option (google.api.http) = {
+            get: "/users"
+        };
+    }
+}

@@ -3,7 +3,7 @@ package grpc
 import (
 	"context"
 
-	"github.com/neidersalgado/go-grpc-api/cmd/grpc-server/users/pb"
+	pb "github.com/neidersalgado/go-grpc-api/cmd/grpc-server/users/proto"
 	"github.com/neidersalgado/go-grpc-api/pkg/users"
 )
 
@@ -23,7 +23,6 @@ func (s *GrpcService) Authenticate(ctx context.Context, auth *pb.AuthRequest) (*
 
 func (s *GrpcService) Create(ctx context.Context, usr *pb.UserRequest) (*pb.Response, error) {
 	userToCreate := users.User{
-		UserId:                usr.UserId,
 		Email:                 usr.Email,
 		PwdHash:               usr.PwdHash,
 		Name:                  usr.Name,
