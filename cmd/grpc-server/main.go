@@ -35,7 +35,7 @@ func main() {
 		fmt.Printf("%+v\n", err)
 	}
 
-	ls, err := net.Listen("tcp", fmt.Sprintf("%s:%d", cfg.Host, cfg.Port))
+	ls, err := net.Listen("tcp", fmt.Sprintf("%s:%d", cfg.GrpcHost, cfg.GrpcPort))
 	if err != nil {
 		panic(fmt.Sprintf("Could not create the listener %v", err))
 	}
@@ -64,16 +64,18 @@ func main() {
 	}
 
 	gwServer := &http.Server{
-		Addr:    ":8090",
+		Addr:    fmt.Sprintf("%s:%d", cfg.HttpHost, cfg.HttpPort),
 		Handler: gwmux,
 	}
 
-	log.Println("Serving gRPC-Gateway on http://127.0.0.1:8090")
+	log.Println(fmt.Sprintf("Serving gRPC-Gateway on http://%s:%d", cfg.HttpHost, cfg.HttpPort))
 	log.Fatalln(gwServer.ListenAndServe())
 
 }
 
 type config struct {
-	Port int    `env:"GRPCSERVICE_PORT" envDefault:"9000"`
-	Host string `env:"GRPCSERVICE_HOST" envDefault:"127.0.0.1"`
+	GrpcPort int    `env:"GRPC_SERVICE_PORT" envDefault:"9000"`
+	GrpcHost string `env:"GRPC_SERVICE_HOST" envDefault:"127.0.0.1"`
+	HttpPort int    `env:"HTTP_SERVICE_PORT" envDefault:"8090"`
+	HttpHost string `env:"HTTP_SERVICE_HOST" envDefault:"127.0.0.1"`
 }

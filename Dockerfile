@@ -12,7 +12,6 @@ COPY . .
 RUN go mod download
 # Build the binary.
 RUN GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o grpcservice ./cmd/grpc-server/.
-RUN GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o restservice ./cmd/rest-service/.
 
 ############################
 # STEP 2 grpc service
@@ -24,14 +23,3 @@ WORKDIR /
 COPY --from=builder /src/grpcservice ./grpcservice
 
 ENTRYPOINT ["/grpcservice"]
-
-############################
-# STEP 3 REST service
-############################
-FROM golang:alpine as restserver
-
-WORKDIR /
-
-COPY --from=builder /src/restservice ./restservice
-
-ENTRYPOINT ["/restservice"]
