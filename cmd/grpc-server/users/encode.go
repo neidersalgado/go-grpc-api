@@ -63,7 +63,7 @@ func encodeGetAllResponse(ctx context.Context, resp interface{}) (interface{}, e
 
 	usersResponse := make([]*pb.UserResponse, len(usrs.Users))
 
-	for _, usr := range usrs.Users {
+	for index, usr := range usrs.Users {
 		userPb := pb.UserResponse{
 			PwdHash:               usr.PwdHash,
 			Email:                 usr.Email,
@@ -71,7 +71,7 @@ func encodeGetAllResponse(ctx context.Context, resp interface{}) (interface{}, e
 			Age:                   usr.Age,
 			AdditionalInformation: usr.AdditionalInformation,
 		}
-		usersResponse = append(usersResponse, &userPb)
+		usersResponse[index] = &userPb
 	}
 	usersCollection := &pb.UserColletionResponse{
 		Users: usersResponse,

@@ -30,7 +30,7 @@ func TestMain(m *testing.M) {
 	exitVal := m.Run()
 	os.Exit(exitVal)
 }
-
+/*
 func Test_Create_ValidData_ReturnNil(t *testing.T) {
 	var err error
 	userToCreate := users.User{Email: "mail@mail.com", Name: "name", Age: 25, AdditionalInformation: "none"}
@@ -39,3 +39,4 @@ func Test_Create_ValidData_ReturnNil(t *testing.T) {
 
 	assert.Nil(t, err)
 }
+//*/s
